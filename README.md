@@ -10,7 +10,7 @@
 
 **Next-generation Flipkart & Blinkit-inspired 15-minute quick-commerce & flagship retail platform with interactive multi-feed reels, 3-second auto-sliding drops, dynamic color variant image swapping, live store catalogue with spec filters, persistent basket, and Apple frosted glassmorphism UI.**
 
-[Explore Live Demo](#-live-deployment) • [Key Features](#-key-features) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start)
+[Explore Live Demo](https://swiftmart-three.vercel.app) • [Key Features](#-key-features) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start)
 
 </div>
 
@@ -161,7 +161,7 @@ npm run preview
 ## 🌐 Live Deployment
 
 The application is deployed on **Vercel**:
-- **Live URL**: *(Configuring via Vercel CLI...)*
+- **Live URL**: [https://swiftmart-three.vercel.app](https://swiftmart-three.vercel.app)
 - **GitHub Repository**: [https://github.com/AvishkarRanjane/SwiftMart](https://github.com/AvishkarRanjane/SwiftMart)
 
 ---
