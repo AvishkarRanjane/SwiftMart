@@ -2917,16 +2917,28 @@ export default function Home({ onNavigate, onViewProduct, filterQuery, restoredS
                 }
                 className="group glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-4 transition-all duration-300 flex flex-col justify-between relative cursor-pointer active:scale-[0.98]"
               >
-                {/* Floating Discount Badge */}
-                <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
-                  <span className="bg-amber-500 text-neutral-950 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-black shadow-xs">
-                    {product.discount}
-                  </span>
-                  {product.badge && (
-                    <span className="bg-neutral-950 text-white text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-bold shadow-xs">
-                      {product.badge}
+                {/* Floating Badges (De-duplicated) */}
+                <div className="absolute top-3 left-3 z-10 flex flex-col gap-1 pointer-events-none">
+                  {product.discount && (
+                    <span className="bg-amber-500 text-neutral-950 text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full font-black shadow-xs">
+                      {product.discount}
                     </span>
                   )}
+                  {(() => {
+                    if (!product.badge) return null;
+                    const badgeClean = product.badge.trim().toLowerCase();
+                    const discountClean = (product.discount || "").trim().toLowerCase();
+                    const isDiscountBadge =
+                      badgeClean.includes("%") ||
+                      badgeClean.includes("off") ||
+                      badgeClean === discountClean;
+                    if (isDiscountBadge && product.discount) return null;
+                    return (
+                      <span className="bg-neutral-950 text-white text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-bold shadow-xs">
+                        {product.badge}
+                      </span>
+                    );
+                  })()}
                 </div>
 
                 {/* Top Right Wishlist Heart Button */}

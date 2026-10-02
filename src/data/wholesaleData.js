@@ -145,6 +145,28 @@ export const MEGA_MENU_CATEGORIES = [
       ["Baby Diapers & Wipes", "Baby Skincare & Bath", "Baby Feeding Bottles", "Strollers & Prams"],
     ],
   },
+  {
+    id: "electronics-gadgets",
+    name: "Electronic Gadgets",
+    icon: "headphones",
+    count: "18 collections",
+    columns: [
+      ["Smart Audio & ANC", "Wireless Earbuds", "Bluetooth Speakers", "Neckbands", "Gaming Headsets"],
+      ["GaN Fast Chargers", "Heavy Duty Cables", "High Capacity Power Banks", "Wireless Chargers", "Adapters"],
+      ["Smart Wearables", "Smart Watches", "Fitness Trackers", "Computer Accessories", "Mouse & Keyboards"],
+    ],
+  },
+  {
+    id: "daily-necessities",
+    name: "Daily Necessities",
+    icon: "inventory_2",
+    count: "16 collections",
+    columns: [
+      ["Laundry Detergents", "Fabric Softeners", "Detergent Powders", "Stain Removers"],
+      ["Surface & Floor Cleaners", "Disinfectant Sprays", "Toilet Cleaners", "Glass Cleaners"],
+      ["Dishwash Essentials", "Paper Goods & Tissues", "Insect & Pest Defense", "Oral Care Bulk"],
+    ],
+  },
 ];
 
 export const WHOLESALE_PRODUCTS = [
@@ -166,6 +188,7 @@ export const WHOLESALE_PRODUCTS = [
     reviewsCount: "1,240 Buyers",
     badge: "NEW",
     isNew: true,
+    tagsInImage: true,
     inStock: true,
     assured: true,
     moq: 1,
@@ -188,6 +211,7 @@ export const WHOLESALE_PRODUCTS = [
     reviewsCount: "980 Buyers",
     badge: "NEW",
     isNew: true,
+    tagsInImage: true,
     inStock: true,
     assured: true,
     moq: 1,
@@ -210,6 +234,7 @@ export const WHOLESALE_PRODUCTS = [
     reviewsCount: "750 Buyers",
     badge: "",
     isNew: false,
+    tagsInImage: true,
     inStock: true,
     assured: true,
     moq: 1,
@@ -232,6 +257,7 @@ export const WHOLESALE_PRODUCTS = [
     reviewsCount: "1,520 Buyers",
     badge: "",
     isNew: false,
+    tagsInImage: true,
     inStock: true,
     assured: true,
     moq: 1,
@@ -254,6 +280,7 @@ export const WHOLESALE_PRODUCTS = [
     reviewsCount: "2,100 Buyers",
     badge: "",
     isNew: false,
+    tagsInImage: true,
     inStock: true,
     assured: true,
     moq: 1,

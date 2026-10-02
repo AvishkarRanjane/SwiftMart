@@ -74,7 +74,7 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem("swiftmart_cart_v2", JSON.stringify(cart));
+      localStorage.setItem("swiftmart_wholesale_cart_v3", JSON.stringify(cart));
     } catch (e) {
       console.error(e);
     }
@@ -82,7 +82,7 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem("swiftmart_wishlist_v2", JSON.stringify(wishlist));
+      localStorage.setItem("swiftmart_wholesale_wishlist_v3", JSON.stringify(wishlist));
     } catch (e) {
       console.error(e);
     }
@@ -96,6 +96,19 @@ export function CartProvider({ children }) {
   };
 
   const addToCart = (product, quantity = 1) => {
+    const rawPrice =
+      product.price ??
+      product.packPrice ??
+      product.unitPrice ??
+      (typeof product.mrp === "number" ? product.mrp : 0);
+    const itemPrice = typeof rawPrice === "number" ? rawPrice : parseFloat(rawPrice) || 0;
+    const rawOrig =
+      product.originalPrice ??
+      product.originalPackPrice ??
+      product.mrp ??
+      Math.round(itemPrice * 1.3);
+    const itemOrigPrice = typeof rawOrig === "number" ? rawOrig : parseFloat(rawOrig) || itemPrice;
+
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
@@ -108,10 +121,9 @@ export function CartProvider({ children }) {
         {
           id: product.id,
           name: product.shortName || product.name,
-          pack: product.pack || "Standard Pack",
-          price: product.price,
-          originalPrice:
-            product.originalPrice || Math.round(product.price * 1.3),
+          pack: product.pack || product.bulkPack || "Standard Pack",
+          price: itemPrice,
+          originalPrice: itemOrigPrice,
           discount: product.discount || "SuperSaver",
           image: product.image || (product.images ? product.images[0] : ""),
           qty: quantity,

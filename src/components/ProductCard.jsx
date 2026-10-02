@@ -1,6 +1,16 @@
 import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 
+// List of product images known to contain baked-in promotional tags (e.g. -86%, NEW)
+const IMAGES_WITH_EMBEDDED_TAGS = [
+  "german-silver-jhumka",
+  "jewellery-accessories",
+  "silver-jhumka-pink",
+  "oxidised-peacock-chandbali",
+  "oxidised-silver-kite",
+  "oxidised-silver-pairs-set",
+];
+
 export default function ProductCard({ product, onQuickView }) {
   const { addToCart, isInWishlist, toggleWishlist, showToast } = useCart();
   const [isAdding, setIsAdding] = useState(false);
@@ -11,12 +21,26 @@ export default function ProductCard({ product, onQuickView }) {
   const originalPrice = product.originalPackPrice || Math.round(salePrice * 3.5);
 
   // Calculate discount percentage
-  const discountPercent = product.discount
-    ? parseInt(product.discount.replace(/\D/g, ""), 10) ||
-      Math.round(((originalPrice - salePrice) / originalPrice) * 100)
-    : Math.round(((originalPrice - salePrice) / originalPrice) * 100);
+  const rawDiscount = product.discount
+    ? parseInt(String(product.discount).replace(/\D/g, ""), 10)
+    : 0;
+  const calculatedDiscount =
+    originalPrice > salePrice
+      ? Math.round(((originalPrice - salePrice) / originalPrice) * 100)
+      : 0;
+  const discountPercent = rawDiscount || calculatedDiscount;
 
-  const isNew = product.badge === "NEW" || product.isNew;
+  const isNew = Boolean(
+    product.isNew === true ||
+    (typeof product.badge === "string" && product.badge.trim().toUpperCase() === "NEW")
+  );
+
+  // Check if tags are present in the image (Requirement 1: Remove tags from the image of the card only if tags are present in the image)
+  const hasTagsInImage = Boolean(
+    product.tagsInImage ||
+    product.hasImageTags ||
+    (product.image && IMAGES_WITH_EMBEDDED_TAGS.some((name) => product.image.includes(name)))
+  );
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -37,28 +61,30 @@ export default function ProductCard({ product, onQuickView }) {
 
   return (
     <div className="group relative bg-white rounded-2xl border border-neutral-200/85 hover:border-neutral-300 shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between overflow-hidden p-2.5 sm:p-3 cursor-pointer">
-      {/* Product Image Container with Badges (Fills square space edge-to-edge) */}
+      {/* Product Image Container with Badges */}
       <div
         onClick={() => onQuickView && onQuickView(product)}
         className="relative aspect-square w-full rounded-xl overflow-hidden bg-neutral-100/60 mb-2.5 group/img"
       >
-        {/* Top Badges */}
-        <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 pointer-events-none">
-          {discountPercent > 0 && (
+        {/* Top Badges: Rendered ONLY if tags are NOT already present in the image */}
+        {!hasTagsInImage && discountPercent > 0 && (
+          <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 pointer-events-none">
             <span className="bg-[#e53935] text-white font-extrabold text-[10.5px] sm:text-[11px] px-1.5 py-0.5 rounded shadow-xs tracking-tight">
               -{discountPercent}%
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Top Right: NEW Badge & Wishlist Heart */}
         <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
-          {isNew && (
+          {!hasTagsInImage && isNew && (
             <span className="bg-[#fbc02d] text-neutral-900 font-black text-[9.5px] sm:text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wider shadow-2xs">
               NEW
             </span>
           )}
+
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               toggleWishlist(product.id);

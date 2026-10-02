@@ -10,17 +10,23 @@ import CategoryProductPage from "./pages/CategoryProductPage";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import VendorDashboard from "./pages/VendorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Cart from "./pages/Cart";
+import Wishlist from "./pages/Wishlist";
+import { WHOLESALE_PRODUCTS } from "./data/wholesaleData";
+import { PRODUCTS } from "./data/products";
 import WholesaleCartDrawer from "./components/WholesaleCartDrawer";
 import WholesaleWishlistDrawer from "./components/WholesaleWishlistDrawer";
 import WholesaleQuickViewModal from "./components/WholesaleQuickViewModal";
 import WholesaleAccountModal from "./components/WholesaleAccountModal";
 import WholesaleSupportDrawer from "./components/WholesaleSupportDrawer";
 import BecomeVendorModal from "./components/BecomeVendorModal";
+import { appleSmoothScroll } from "./utils/scrollAnimation";
 
 function SwiftMartWholesaleApp() {
   const [currentPage, setCurrentPage] = useState("home"); // 'home' | 'category' | 'customer-dashboard' | 'vendor-dashboard'
   const [selectedCategory, setSelectedCategory] = useState("health-beauty");
   const [selectedSubCategory, setSelectedSubCategory] = useState("all");
+  const [activeHomePill, setActiveHomePill] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
@@ -32,15 +38,40 @@ function SwiftMartWholesaleApp() {
 
   const { setIsOrderSuccessOpen, setLastOrderDetails } = useCart();
 
-  // Smooth scroll to any section ID on the continuous single page
-  const scrollToSection = (sectionId) => {
+  // Smooth scroll to any section ID with Apple-grade fluid animation
+  const scrollToSection = (sectionId, options = {}) => {
     if (sectionId === "top") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      appleSmoothScroll(0, options);
       return;
     }
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    let targetId = sectionId;
+    if (sectionId === "just-arrived") {
+      targetId = "all-products";
+      setActiveHomePill("all");
+    } else if (sectionId === "best-sellers") {
+      targetId = "all-products";
+      setActiveHomePill("all");
+    } else if (
+      sectionId === "festive-specials" ||
+      sectionId === "navratri-specials" ||
+      sectionId === "festive"
+    ) {
+      targetId = "all-products";
+      setActiveHomePill("festive");
+    }
+    // daily-necessities, electronics-gadgets, kitchen-dining, home-improvement:
+    // targetId already equals sectionId — scrolls directly to their standalone section.
+
+    if (currentPage !== "home") {
+      setCurrentPage("home");
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          appleSmoothScroll(targetId, options);
+        }, 80);
+      });
+    } else {
+      appleSmoothScroll(targetId, options);
     }
   };
 
@@ -64,8 +95,31 @@ function SwiftMartWholesaleApp() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleNavigate = (page, extra) => {
+    if (page === "home") {
+      handleNavigateHome();
+    } else if (page === "cart") {
+      setCurrentPage("cart");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (page === "wishlist") {
+      setCurrentPage("wishlist");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (page === "catalogue" || page === "category") {
+      handleSelectCategory(extra || "just-arrived");
+    } else if (page === "customer-dashboard" || page === "login" || page === "customer") {
+      handleNavigateCustomer();
+    } else if (page === "vendor-dashboard" || page === "vendor") {
+      handleNavigateVendor();
+    } else if (page === "admin-dashboard" || page === "admin") {
+      handleNavigateAdmin();
+    } else {
+      handleNavigateHome();
+    }
+  };
+
   const handleSearchSubmit = (query) => {
-    setSearchQuery(query);
+    if (!query || !query.trim()) return;
+    setSearchQuery(query.trim());
     if (currentPage !== "home") {
       setCurrentPage("home");
     }
@@ -73,31 +127,33 @@ function SwiftMartWholesaleApp() {
   };
 
   const handleSelectCategory = (catId, subCat = "all", shouldScroll = true) => {
+    // 1. Sections that live on the Home page — smooth-scroll to them instead of loading CategoryProductPage
     const homeSections = [
-      "all-products",
+      "just-arrived",
+      "best-sellers",
+      "festive-specials",
+      "navratri-specials",
       "flash-deals",
+      "wholesale-faq",
       "daily-necessities",
       "electronics-gadgets",
-      "wholesale-faq",
+      "kitchen-dining",
+      "home-improvement",
     ];
-
     if (homeSections.includes(catId)) {
-      if (currentPage !== "home") {
-        setCurrentPage("home");
-        setTimeout(() => scrollToSection(catId), 100);
-      } else {
-        scrollToSection(catId);
-      }
+      scrollToSection(catId);
       return;
     }
 
-    // Open dedicated Category Product Listing Page (matching DeoDap layout)
-    const isNewPage = currentPage !== "category";
+    // 2. Direct Product Category Loading for all other options located within Category dropdown
     setSelectedCategory(catId);
     setSelectedSubCategory(subCat || "all");
-    setCurrentPage("category");
-    if (isNewPage && shouldScroll) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (currentPage !== "category") {
+      setCurrentPage("category");
+      if (shouldScroll) {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
     }
   };
 
@@ -132,9 +188,30 @@ function SwiftMartWholesaleApp() {
         onOpenBecomeVendor={() => setIsBecomeVendorModalOpen(true)}
       />
 
-      {/* Main Content: Home Single-Page Wholesale | Category Page | Customer Dashboard | Vendor Dashboard | Admin Dashboard */}
+      {/* Main Content: Home Single-Page Wholesale | Category Page | Customer Dashboard | Vendor Dashboard | Admin Dashboard | Cart | Wishlist */}
       <main className="flex-1 w-full">
-        {currentPage === "admin-dashboard" ? (
+        {currentPage === "cart" ? (
+          <Cart
+            onNavigate={handleNavigate}
+            onViewProduct={(id) => {
+              const product =
+                WHOLESALE_PRODUCTS.find((p) => p.id === id) ||
+                PRODUCTS.find((p) => p.id === id);
+              if (product) setQuickViewProduct(product);
+            }}
+            onOpenPincodeModal={() => setIsAccountModalOpen(true)}
+          />
+        ) : currentPage === "wishlist" ? (
+          <Wishlist
+            onNavigate={handleNavigate}
+            onViewProduct={(id) => {
+              const product =
+                WHOLESALE_PRODUCTS.find((p) => p.id === id) ||
+                PRODUCTS.find((p) => p.id === id);
+              if (product) setQuickViewProduct(product);
+            }}
+          />
+        ) : currentPage === "admin-dashboard" ? (
           <AdminDashboard
             onNavigateHome={handleNavigateHome}
             onNavigateCustomer={handleNavigateCustomer}
@@ -169,6 +246,8 @@ function SwiftMartWholesaleApp() {
             activeCategory={activeCategory}
             onSelectCategory={handleSelectCategory}
             onQuickView={(product) => setQuickViewProduct(product)}
+            activePillProp={activeHomePill}
+            onPillChange={(pill) => setActiveHomePill(pill)}
           />
         )}
       </main>
@@ -184,6 +263,7 @@ function SwiftMartWholesaleApp() {
       <WholesaleWishlistDrawer
         isOpen={isWishlistDrawerOpen}
         onClose={() => setIsWishlistDrawerOpen(false)}
+        onOpenCart={() => setIsCartDrawerOpen(true)}
         onQuickView={(product) => setQuickViewProduct(product)}
       />
 

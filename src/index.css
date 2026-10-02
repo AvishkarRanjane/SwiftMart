@@ -664,3 +664,58 @@
   animation: badgePingOnce 0.6s cubic-bezier(0, 0, 0.2, 1) 1 forwards;
 }
 
+/* ============================================================ */
+/* APPLE-INSPIRED SMOOTH SCROLL & SEAMLESS CATEGORY TRANSITIONS */
+/* ============================================================ */
+
+/* Section Arrival Glow Highlight Pulse */
+@keyframes sectionArrivalPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+  30% {
+    box-shadow: 0 0 0 5px rgba(220, 38, 38, 0.16), 0 12px 30px -4px rgba(220, 38, 38, 0.12);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+.section-arrival-glow {
+  animation: sectionArrivalPulse 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  border-radius: 1.25rem;
+}
+
+/* Fluid Fade & Slide-up Entrance Animation for Category Loading */
+@keyframes categoryFadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.995);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-category-transition {
+  animation: categoryFadeSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Subtle staggered card entrance */
+@keyframes cardGlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-glide {
+  animation: cardGlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+

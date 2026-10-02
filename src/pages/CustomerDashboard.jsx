@@ -10,7 +10,7 @@ export default function CustomerDashboard({
   onOpenCart,
   onQuickView,
 }) {
-  const { showToast, addToCart, wishlist } = useCart();
+  const { showToast, addToCart, wishlist, removeFromWishlist } = useCart();
   const { user, addWalletMoney, updateProfile } = useAuth();
 
   // Active Tab: 'overview' | 'profile' | 'orders' | 'tracking' | 'wallet' | 'wishlist' | 'notifications' | 'become-vendor'
@@ -970,7 +970,10 @@ export default function CustomerDashboard({
 
                       <div className="pt-3 mt-3 border-t border-neutral-100 flex gap-2">
                         <button
-                          onClick={() => addToCart(p, 1)}
+                          onClick={() => {
+                            addToCart(p, 1);
+                            removeFromWishlist(p.id);
+                          }}
                           className="flex-1 bg-neutral-950 hover:bg-neutral-800 text-white font-heading font-bold text-xs py-1.5 rounded-lg cursor-pointer"
                         >
                           Add to Cart

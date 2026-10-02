@@ -8,6 +8,7 @@ import React, {
 import WholesaleHero from "../components/WholesaleHero";
 import ProductCard from "../components/ProductCard";
 import CuratedCategoryGrid from "../components/CuratedCategoryGrid";
+import { appleSmoothScroll } from "../utils/scrollAnimation";
 import {
   WHOLESALE_PRODUCTS,
   WHOLESALE_FAQS,
@@ -133,9 +134,18 @@ export default function SinglePageWholesale({
   activeCategory,
   onSelectCategory,
   onQuickView,
+  activePillProp = "all",
+  onPillChange,
 }) {
-  const [activePill, setActivePill] = useState("all");
+  const [activePill, setActivePill] = useState(activePillProp || "all");
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
+
+  // Sync with parent activePillProp if provided
+  useEffect(() => {
+    if (activePillProp) {
+      setActivePill(activePillProp);
+    }
+  }, [activePillProp]);
 
   // Manage single expanded section with zero-disturbance auto-collapse on scroll to next section
   const [activeExpandedSection, setActiveExpandedSection] = useState(null);
@@ -217,7 +227,7 @@ export default function SinglePageWholesale({
         if (el) {
           const rect = el.getBoundingClientRect();
           if (rect.top < -50) {
-            el.scrollIntoView({ behavior: "smooth", block: "start" });
+            appleSmoothScroll(el, { addGlow: false });
           } else {
             prepareAnchorLock(sectionId, el);
           }
@@ -500,7 +510,13 @@ export default function SinglePageWholesale({
       </section>
 
       {/* 3. MAIN PRODUCT SHOWCASE (Top Rated / Filtered Category Showcase) */}
-      <section id="all-products" className="max-w-[1480px] mx-auto px-3 sm:px-4 md:px-margin w-full">
+      <section id="all-products" className="max-w-[1480px] mx-auto px-3 sm:px-4 md:px-margin w-full relative">
+        {/* Scroll anchor markers for smooth navigation */}
+        <div id="just-arrived" className="sr-only pointer-events-none" />
+        <div id="best-sellers" className="sr-only pointer-events-none" />
+        <div id="festive-specials" className="sr-only pointer-events-none" />
+        <div id="navratri-specials" className="sr-only pointer-events-none" />
+
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-3 sm:mb-4">
           <div>
@@ -537,7 +553,9 @@ export default function SinglePageWholesale({
             <button
               onClick={() => {
                 setActivePill("all");
+                if (onPillChange) onPillChange("all");
                 setActiveExpandedSection("all-products");
+                appleSmoothScroll("all-products", { addGlow: false });
               }}
               className="text-xs font-bold text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer hidden md:inline"
             >
@@ -553,10 +571,14 @@ export default function SinglePageWholesale({
             return (
               <button
                 key={pill.id}
-                onClick={() => setActivePill(pill.id)}
+                onClick={() => {
+                  setActivePill(pill.id);
+                  if (onPillChange) onPillChange(pill.id);
+                  appleSmoothScroll("all-products", { addGlow: false });
+                }}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
                   isActive
-                    ? "bg-neutral-950 text-white shadow-sm ring-1 ring-neutral-900"
+                    ? "bg-neutral-950 text-white shadow-sm ring-1 ring-neutral-900 scale-102"
                     : "bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-200"
                 }`}
               >

@@ -36,6 +36,11 @@ export default function Header({
   const [activeMegaCat, setActiveMegaCat] = useState(MEGA_MENU_CATEGORIES[0]);
   const megaMenuRef = useRef(null);
 
+  // Mobile full-screen search modal state (Requirement 8)
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [mobileSearchText, setMobileSearchText] = useState("");
+  const mobileSearchInputRef = useRef(null);
+
   // Account dropdown state & click-outside handling
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const accountDropdownRef = useRef(null);
@@ -104,7 +109,11 @@ export default function Header({
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      onSearchSubmit(searchQuery);
+      if (!searchQuery || !searchQuery.trim()) {
+        showToast("Please enter a search keyword", "info");
+        return;
+      }
+      onSearchSubmit(searchQuery.trim());
     }
   };
 
@@ -287,10 +296,9 @@ export default function Header({
       {/* 2. MAIN HEADER ROW (Matching Reference Images 1 & 2) */}
       <div className="px-3 sm:px-4 md:px-margin py-2.5 sm:py-3 bg-white border-b border-neutral-200">
         <div className="max-w-[1480px] mx-auto flex items-center justify-between gap-3 sm:gap-6">
-          {/* Brand Logo: SwiftMart WHOLESALE (with Interactive Delivery Story Animation on Cursor Hover) */}
+          {/* Brand Logo: SwiftMart WHOLESALE (Branding element only, non-navigational) */}
           <div
-            onClick={() => (onLogoClick ? onLogoClick() : onScrollToSection("top"))}
-            className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0 group"
+            className="flex items-center gap-2.5 sm:gap-3 cursor-default select-none shrink-0 group"
             title="SwiftMart Wholesale • B2B Direct"
           >
             {/* Animated Micro-Story Circular Badge (Shop -> Product -> Pack -> Delivery Bus -> Delivered) */}
@@ -340,8 +348,8 @@ export default function Header({
             </div>
           </div>
 
-          {/* Prominent Search Bar (Matching Reference Images with Pill Border & Typewriter Animation) */}
-          <div className="flex-1 max-w-2xl min-w-0">
+          {/* Prominent Search Bar for Desktop/Tablet (Hidden on Mobile View) */}
+          <div className="hidden md:block flex-1 max-w-2xl min-w-0">
             <div className="relative flex items-center w-full rounded-full border-2 border-red-600 bg-white overflow-hidden shadow-xs hover:shadow-md focus-within:shadow-[0_0_16px_rgba(220,38,38,0.22)] focus-within:border-red-600 transition-all">
               {/* Typewriter Animated Placeholder Overlay (Visible when search query is empty) */}
               {!searchQuery && (
@@ -377,9 +385,15 @@ export default function Header({
                 </button>
               )}
 
-              {/* Red Solid Search Button with Bold Typography & Crisp SVG Icon */}
+              {/* Red Solid Search Button with Validation */}
               <button
-                onClick={() => onSearchSubmit(searchQuery)}
+                onClick={() => {
+                  if (!searchQuery || !searchQuery.trim()) {
+                    showToast("Please enter a search keyword", "info");
+                    return;
+                  }
+                  onSearchSubmit(searchQuery.trim());
+                }}
                 className="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white pl-4 pr-5 sm:pl-5 sm:pr-6 py-2 sm:py-2.5 font-heading font-extrabold text-xs sm:text-sm flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 z-20 shadow-xs"
                 title="Search wholesale catalog"
               >
@@ -403,6 +417,35 @@ export default function Header({
 
           {/* Right Utility Links (Matching Reference Image with Proper Weight, Bold Font & Crisp Proportions) */}
           <div className="flex items-center gap-2 sm:gap-3.5 md:gap-5 shrink-0">
+            {/* Mobile Search Icon Button (Requirement 8 - Displays icon only on mobile, expands into full-screen search) */}
+            <button
+              id="mobile-search-btn"
+              data-testid="mobile-search-btn"
+              onClick={() => {
+                setMobileSearchText(searchQuery || "");
+                setIsMobileSearchOpen(true);
+                setTimeout(() => {
+                  mobileSearchInputRef.current?.focus();
+                }, 100);
+              }}
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 border border-neutral-200/80 shadow-xs transition-colors cursor-pointer shrink-0"
+              title="Search wholesale catalog"
+              aria-label="Open mobile search"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5 text-neutral-900"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </button>
+
             {/* 1. Account with Interactive Dropdown Menu */}
             <div className="relative" ref={accountDropdownRef}>
               <button
@@ -646,22 +689,26 @@ export default function Header({
               className="flex items-center gap-2 sm:gap-2.5 text-left hover:text-rose-600 transition-colors cursor-pointer group p-0.5"
               title="Saved Bulk Wishlist Items"
             >
-              <div className="relative w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-full bg-neutral-100 group-hover:bg-rose-50 border border-neutral-200/80 flex items-center justify-center text-neutral-800 group-hover:text-rose-600 transition-all duration-200 shadow-xs group-hover:shadow-sm shrink-0">
-                {/* Crisp Bold Heart SVG Icon */}
+              <div className={`relative w-10 h-10 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center transition-all duration-200 shadow-xs group-hover:shadow-md shrink-0 ${
+                wishlist.length > 0
+                  ? "bg-rose-50 border-rose-300 text-rose-600 group-hover:bg-rose-100"
+                  : "bg-neutral-100 border-neutral-200/80 text-neutral-700 group-hover:bg-rose-50 group-hover:border-rose-200 group-hover:text-rose-600"
+              }`}>
+                {/* Heart icon — filled when items in wishlist */}
                 <svg
                   viewBox="0 0 24 24"
-                  fill="none"
+                  fill={wishlist.length > 0 ? "currentColor" : "none"}
                   stroke="currentColor"
-                  strokeWidth="2.1"
+                  strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="w-[15px] h-[15px] sm:w-[16.5px] sm:h-[16.5px] text-neutral-800 group-hover:text-rose-600 group-hover:fill-rose-500/10 group-hover:scale-105 transition-all duration-200"
+                  className="w-[18px] h-[18px] sm:w-[17px] sm:h-[17px] transition-all duration-200"
                 >
                   <path d="M19.5 13.572 12 21l-7.5-7.428A5 5 0 1 1 12 6.5a5 5 0 1 1 7.5 7.072Z" />
                 </svg>
 
                 {wishlist.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-red-600 text-white font-heading font-black text-[8.5px] min-w-[15px] h-[15px] px-0.5 rounded-full flex items-center justify-center shadow-xs border-[1.5px] border-white ring-1 ring-red-500/20 leading-none">
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white font-heading font-black text-[9.5px] min-w-[18px] h-[18px] px-0.5 rounded-full flex items-center justify-center shadow-md border-[2px] border-white leading-none">
                     {wishlist.length}
                   </span>
                 )}
@@ -682,16 +729,20 @@ export default function Header({
               className="flex items-center gap-2 sm:gap-2.5 text-left hover:text-primary transition-colors cursor-pointer group p-0.5"
               title="View Wholesale Cart & Bulk Tiers"
             >
-              <div className="relative w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-full bg-neutral-100 group-hover:bg-primary/10 border border-neutral-200/80 flex items-center justify-center text-neutral-800 group-hover:text-primary transition-all duration-200 shadow-xs group-hover:shadow-sm shrink-0">
+              <div className={`relative w-10 h-10 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center transition-all duration-200 shadow-xs group-hover:shadow-md shrink-0 ${
+                itemCount > 0
+                  ? "bg-primary/10 border-primary/30 text-primary group-hover:bg-primary/15"
+                  : "bg-neutral-100 border-neutral-200/80 text-neutral-700 group-hover:bg-primary/10 group-hover:border-primary/20 group-hover:text-primary"
+              }`}>
                 {/* Crisp Bold Shopping Cart SVG Icon */}
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2.1"
+                  strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="w-[15px] h-[15px] sm:w-[16.5px] sm:h-[16.5px] text-neutral-800 group-hover:text-primary group-hover:scale-105 transition-all duration-200"
+                  className="w-[18px] h-[18px] sm:w-[17px] sm:h-[17px] transition-all duration-200"
                 >
                   <circle cx="8" cy="21" r="1.5" fill="currentColor" stroke="none" />
                   <circle cx="19" cy="21" r="1.5" fill="currentColor" stroke="none" />
@@ -699,7 +750,7 @@ export default function Header({
                 </svg>
 
                 {itemCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-red-600 text-white font-heading font-black text-[8.5px] min-w-[15px] h-[15px] px-0.5 rounded-full flex items-center justify-center shadow-xs border-[1.5px] border-white ring-1 ring-red-500/20 leading-none">
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white font-heading font-black text-[9.5px] min-w-[18px] h-[18px] px-0.5 rounded-full flex items-center justify-center shadow-md border-[2px] border-white leading-none">
                     {itemCount}
                   </span>
                 )}
@@ -751,7 +802,8 @@ export default function Header({
                       <div
                         key={cat.id}
                         onMouseEnter={() => setActiveMegaCat(cat)}
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setActiveMegaCat(cat);
                           handleCategoryClick(cat.id);
                         }}
@@ -804,7 +856,11 @@ export default function Header({
                             {col.map((item, itemIdx) => (
                               <button
                                 key={itemIdx}
-                                onClick={() => handleCategoryClick(activeMegaCat.id, item)}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCategoryClick(activeMegaCat.id, item);
+                                }}
                                 className="text-left text-[13.5px] font-sans font-normal text-neutral-800 hover:text-[#dc2626] transition-colors py-0.5 cursor-pointer block truncate"
                               >
                                 {item}
@@ -818,7 +874,11 @@ export default function Header({
                   {/* Bottom Action Link */}
                   <div className="pt-6 mt-6 border-t border-neutral-150">
                     <button
-                      onClick={() => handleCategoryClick(activeMegaCat.id)}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCategoryClick(activeMegaCat.id);
+                      }}
                       className="text-[13.5px] font-bold text-neutral-900 hover:text-[#dc2626] flex items-center gap-1.5 transition-colors cursor-pointer group"
                     >
                       <span>View all of {activeMegaCat.name}</span>
@@ -835,31 +895,55 @@ export default function Header({
           {/* Subtle Divider */}
           <div className="h-5 w-px bg-white/15 hidden sm:block shrink-0" />
 
-          {/* Horizontal Nav Links ONLY (Inside overflow-x-auto) */}
-          <div className="flex-1 min-w-0 flex items-center overflow-x-auto scrollbar-none py-0.5 gap-1.5 whitespace-nowrap font-heading text-[13px] font-semibold">
+          {/* Horizontal Nav Links ONLY (Inside overflow-x-auto, with z-10 and stopPropagation) */}
+          <div className="flex-1 min-w-0 flex items-center overflow-x-auto scrollbar-none py-0.5 gap-1.5 whitespace-nowrap font-heading text-[13px] font-semibold z-10 relative">
             <button
-              onClick={() => onScrollToSection("all-products")}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMegaMenuOpen(false);
+                if (onScrollToSection) onScrollToSection("just-arrived");
+                else if (onSelectCategory) onSelectCategory("just-arrived");
+              }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
               Just Arrived
             </button>
 
             <button
-              onClick={() => onScrollToSection("flash-deals")}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMegaMenuOpen(false);
+                if (onScrollToSection) onScrollToSection("flash-deals");
+                else if (onSelectCategory) onSelectCategory("flash-deals");
+              }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
               Bulk Mega Deals
             </button>
 
             <button
-              onClick={() => onScrollToSection("daily-necessities")}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMegaMenuOpen(false);
+                if (onScrollToSection) onScrollToSection("best-sellers");
+                else if (onSelectCategory) onSelectCategory("best-sellers");
+              }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
               Best Sellers
             </button>
 
             <button
-              onClick={() => onScrollToSection("flash-deals")}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMegaMenuOpen(false);
+                if (onScrollToSection) onScrollToSection("flash-deals");
+                else if (onSelectCategory) onSelectCategory("flash-deals");
+              }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
               Daily Deals
@@ -867,7 +951,13 @@ export default function Header({
 
             {/* Festive Specials Pill Badge */}
             <button
-              onClick={() => onScrollToSection("navratri-specials")}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMegaMenuOpen(false);
+                if (onScrollToSection) onScrollToSection("festive-specials");
+                else if (onSelectCategory) onSelectCategory("festive-gifting");
+              }}
               className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-rose-500/15 to-amber-500/10 text-amber-300 border border-amber-400/35 hover:border-amber-400/60 hover:bg-amber-500/25 transition-all duration-200 cursor-pointer flex items-center gap-1.5 font-heading font-bold text-[12.5px] tracking-tight shadow-2xs shrink-0"
             >
               <span className="material-symbols-outlined text-[15px] text-amber-400">
@@ -877,28 +967,52 @@ export default function Header({
             </button>
 
             <button
-              onClick={() => onScrollToSection("daily-necessities")}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMegaMenuOpen(false);
+                if (onScrollToSection) onScrollToSection("daily-necessities");
+                else if (onSelectCategory) onSelectCategory("daily-necessities");
+              }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
               Daily Necessities
             </button>
 
             <button
-              onClick={() => onScrollToSection("electronics-gadgets")}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMegaMenuOpen(false);
+                if (onScrollToSection) onScrollToSection("electronics-gadgets");
+                else if (onSelectCategory) onSelectCategory("electronics-gadgets");
+              }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
               Electronic Gadgets
             </button>
 
             <button
-              onClick={() => onScrollToSection("daily-necessities")}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMegaMenuOpen(false);
+                if (onScrollToSection) onScrollToSection("kitchen-dining");
+                else if (onSelectCategory) onSelectCategory("kitchen-dining");
+              }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer hidden md:inline-flex items-center"
             >
               Kitchen &amp; Dining
             </button>
 
             <button
-              onClick={() => onScrollToSection("daily-necessities")}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMegaMenuOpen(false);
+                if (onScrollToSection) onScrollToSection("home-improvement");
+                else if (onSelectCategory) onSelectCategory("home-improvement");
+              }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer hidden lg:inline-flex items-center"
             >
               Home Improvement
@@ -914,6 +1028,145 @@ export default function Header({
           </div>
         </div>
       </div>
+
+      {/* 4. FULL-SCREEN MOBILE SEARCH INTERFACE (Requirement 8) */}
+      {isMobileSearchOpen && (
+        <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in fade-in duration-150">
+          {/* Top Search Bar Row */}
+          <div className="p-3 bg-white border-b border-neutral-200 flex items-center gap-2 shadow-xs">
+            <button
+              onClick={() => setIsMobileSearchOpen(false)}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-700 hover:bg-neutral-100 active:scale-95 transition-all cursor-pointer shrink-0"
+              title="Close search"
+              aria-label="Back"
+            >
+              <span className="material-symbols-outlined text-[24px]">arrow_back</span>
+            </button>
+
+            <div className="relative flex-1 flex items-center rounded-full border-2 border-red-600 bg-white overflow-hidden shadow-xs">
+              <input
+                ref={mobileSearchInputRef}
+                type="text"
+                autoFocus
+                placeholder="Search wholesale products, brands..."
+                value={mobileSearchText}
+                onChange={(e) => setMobileSearchText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (!mobileSearchText?.trim()) {
+                      showToast("Please enter a search keyword", "info");
+                      return;
+                    }
+                    setSearchQuery(mobileSearchText.trim());
+                    onSearchSubmit(mobileSearchText.trim());
+                    setIsMobileSearchOpen(false);
+                  }
+                }}
+                className="w-full pl-4 pr-9 py-2 text-sm font-sans font-semibold text-neutral-900 focus:outline-none bg-transparent"
+                aria-label="Search wholesale catalog"
+              />
+
+              {mobileSearchText && (
+                <button
+                  type="button"
+                  onClick={() => setMobileSearchText("")}
+                  className="absolute right-2.5 text-neutral-400 hover:text-neutral-700 cursor-pointer p-0.5"
+                  title="Clear input"
+                >
+                  <span className="material-symbols-outlined text-[18px]">close</span>
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!mobileSearchText?.trim()) {
+                  showToast("Please enter a search keyword", "info");
+                  return;
+                }
+                setSearchQuery(mobileSearchText.trim());
+                onSearchSubmit(mobileSearchText.trim());
+                setIsMobileSearchOpen(false);
+              }}
+              className="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white px-3.5 py-2 rounded-full font-heading font-black text-xs transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[16px]">search</span>
+              <span>Search</span>
+            </button>
+          </div>
+
+          {/* Quick Trending Searches & Categories */}
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
+            {/* Trending Wholesale Searches */}
+            <div>
+              <div className="flex items-center gap-1.5 text-neutral-500 text-xs font-bold uppercase tracking-wider mb-3">
+                <span className="material-symbols-outlined text-[16px] text-red-600">trending_up</span>
+                <span>Trending Wholesale Searches</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "Basmati Rice 25kg",
+                  "Wireless Earbuds",
+                  "Mustard Oil 15L",
+                  "Fast Charging Cable",
+                  "Stainless Steel Cookware",
+                  "Power Bank 20000mAh",
+                  "Smart Watches",
+                  "Just Arrived",
+                  "Best Sellers",
+                ].map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => {
+                      setSearchQuery(term);
+                      onSearchSubmit(term);
+                      setIsMobileSearchOpen(false);
+                    }}
+                    className="px-3 py-1.5 rounded-full bg-neutral-100 hover:bg-red-50 hover:text-red-600 hover:border-red-200 border border-neutral-200/80 text-xs font-semibold text-neutral-700 transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-[13px] text-neutral-400">search</span>
+                    <span>{term}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Categories */}
+            <div>
+              <div className="flex items-center gap-1.5 text-neutral-500 text-xs font-bold uppercase tracking-wider mb-3">
+                <span className="material-symbols-outlined text-[16px] text-primary">category</span>
+                <span>Browse Wholesale Categories</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                {[
+                  { id: "just-arrived", name: "Just Arrived", icon: "auto_awesome", color: "text-amber-600 bg-amber-50" },
+                  { id: "best-sellers", name: "Best Sellers", icon: "local_fire_department", color: "text-red-600 bg-red-50" },
+                  { id: "jewellery-accessories", name: "Jewellery & Acc.", icon: "diamond", color: "text-purple-600 bg-purple-50" },
+                  { id: "health-beauty", name: "Health & Beauty", icon: "spa", color: "text-emerald-600 bg-emerald-50" },
+                  { id: "electronics-gadgets", name: "Electronic Gadgets", icon: "headphones", color: "text-blue-600 bg-blue-50" },
+                  { id: "daily-necessities", name: "Daily Necessities", icon: "inventory_2", color: "text-orange-600 bg-orange-50" },
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setIsMobileSearchOpen(false);
+                      if (onSelectCategory) onSelectCategory(cat.id);
+                    }}
+                    className="p-3 rounded-xl border border-neutral-200/80 hover:border-neutral-300 bg-neutral-50/50 flex items-center gap-2.5 text-left transition-all cursor-pointer"
+                  >
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${cat.color}`}>
+                      <span className="material-symbols-outlined text-[18px]">{cat.icon}</span>
+                    </div>
+                    <span className="font-heading font-bold text-xs text-neutral-800 truncate">{cat.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

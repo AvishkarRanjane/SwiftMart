@@ -3,6 +3,15 @@ import { useCart } from "../context/CartContext";
 import { getCategoryDetails, CATEGORY_SIDEBAR_LIST } from "../data/categoryPageData";
 import { MEGA_MENU_CATEGORIES } from "../data/wholesaleData";
 
+const IMAGES_WITH_EMBEDDED_TAGS = [
+  "german-silver-jhumka",
+  "jewellery-accessories",
+  "silver-jhumka-pink",
+  "oxidised-peacock-chandbali",
+  "oxidised-silver-kite",
+  "oxidised-silver-pairs-set",
+];
+
 export default function CategoryProductPage({
   category = "health-beauty",
   subCategory = "all",
@@ -26,12 +35,20 @@ export default function CategoryProductPage({
   // Reels carousel scroll ref
   const reelsScrollRef = useRef(null);
 
-  // Sync state if category prop changes
+  // Transitioning state for animation-driven direct load (subtle fade & slide effect)
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Sync state if category prop changes with fluid animation-driven transition
   React.useEffect(() => {
-    setActiveCatId(category);
-    setExpandedCatId(category);
-    setActiveSubCat(subCategory || "all");
-    setVisibleCount(8);
+    setIsTransitioning(true);
+    const timer = setTimeout(() => {
+      setActiveCatId(category);
+      setExpandedCatId(category);
+      setActiveSubCat(subCategory || "all");
+      setVisibleCount(8);
+      setIsTransitioning(false);
+    }, 110);
+    return () => clearTimeout(timer);
   }, [category, subCategory]);
 
   const categoryData = useMemo(() => {
@@ -103,60 +120,55 @@ export default function CategoryProductPage({
     }, 700);
   };
 
-  // Category click: Toggles accordion and switches active category without scrolling up
+  // Category click: Selects category, expands accordion, and updates product listing with smooth transition
   const handleCategorySidebarClick = (catId, e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    // Single open: if clicking currently expanded, toggle closed; otherwise open this one and close any other
-    if (expandedCatId === catId) {
-      setExpandedCatId(null);
-    } else {
-      setExpandedCatId(catId);
+    if (catId === activeCatId) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
       setActiveCatId(catId);
+      setExpandedCatId(catId);
       setActiveSubCat("all");
       setVisibleCount(8);
+      setIsTransitioning(false);
       if (onSelectCategory) {
         onSelectCategory(catId, "all", false);
       }
-    }
+    }, 110);
   };
 
-  // Chevron arrow click: explicitly toggles the dropdown arrow without scrolling up
+  // Chevron arrow click: explicitly toggles the dropdown accordion arrow
   const handleChevronClick = (catId, e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    if (expandedCatId === catId) {
-      setExpandedCatId(null);
-    } else {
-      setExpandedCatId(catId);
-      setActiveCatId(catId);
-      setActiveSubCat("all");
-      setVisibleCount(8);
-      if (onSelectCategory) {
-        onSelectCategory(catId, "all", false);
-      }
-    }
+    setExpandedCatId((prev) => (prev === catId ? null : catId));
   };
 
-  // Subcategory click: selects subcategory and updates products without scrolling up
+  // Subcategory click: selects subcategory and updates products with seamless fade & slide
   const handleSubcategoryClick = (catId, sub, e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    if (activeCatId !== catId) {
-      setActiveCatId(catId);
-      setExpandedCatId(catId);
-    }
-    setActiveSubCat(sub);
-    setVisibleCount(8);
-    if (onSelectCategory) {
-      onSelectCategory(catId, sub, false);
-    }
+    if (activeCatId === catId && activeSubCat.toLowerCase() === sub.toLowerCase()) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      if (activeCatId !== catId) {
+        setActiveCatId(catId);
+        setExpandedCatId(catId);
+      }
+      setActiveSubCat(sub);
+      setVisibleCount(8);
+      setIsTransitioning(false);
+      if (onSelectCategory) {
+        onSelectCategory(catId, sub, false);
+      }
+    }, 110);
   };
 
   return (
@@ -299,6 +311,42 @@ export default function CategoryProductPage({
           </div>
         )}
 
+        {/* Mobile Horizontal Quick Category Filter Chips (Requirement 5 & 7) */}
+        <div className="lg:hidden mb-4 bg-white rounded-2xl border border-neutral-200 p-2.5 shadow-2xs">
+          <div className="flex items-center gap-1.5 mb-2 px-1 text-xs font-bold text-neutral-500 uppercase tracking-wider">
+            <span className="material-symbols-outlined text-[16px] text-red-600">category</span>
+            <span>Quick Category Filter</span>
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
+            {CATEGORY_SIDEBAR_LIST.map((cat) => {
+              const isSelected = activeCatId === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={(e) => handleCategorySidebarClick(cat.id, e)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs ${
+                    isSelected
+                      ? "bg-red-600 text-white shadow-sm scale-102"
+                      : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[15px]">{cat.icon}</span>
+                  <span>{cat.name}</span>
+                  {cat.badge && (
+                    <span
+                      className={`text-[9px] px-1 py-0.2 rounded-full font-black uppercase ${
+                        isSelected ? "bg-white text-red-600" : "bg-red-100 text-red-600"
+                      }`}
+                    >
+                      {cat.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* 4. MAIN SPLIT LAYOUT: SIDEBAR + PRODUCT GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-6 sm:gap-8 items-start">
           {/* LEFT SIDEBAR (Matching Screenshot 1 & 2) */}
@@ -335,12 +383,32 @@ export default function CategoryProductPage({
                     <div
                       onClick={(e) => handleCategorySidebarClick(cat.id, e)}
                       className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between transition-all cursor-pointer select-none group ${
-                        isExpanded
-                          ? "bg-red-50 text-red-600 font-bold"
+                        isSelected
+                          ? "bg-red-50 text-red-600 font-bold border border-red-200/80 shadow-2xs"
+                          : isExpanded
+                          ? "bg-neutral-100 text-neutral-900 font-bold"
                           : "text-neutral-800 hover:text-neutral-950 hover:bg-neutral-50 font-semibold"
                       }`}
                     >
-                      <span className="truncate pr-1 text-[13.5px]">{cat.name}</span>
+                      <div className="flex items-center gap-2 min-w-0 pr-1">
+                        <span
+                          className={`material-symbols-outlined text-[18px] shrink-0 ${
+                            isSelected ? "text-red-600" : "text-neutral-500"
+                          }`}
+                        >
+                          {cat.icon}
+                        </span>
+                        <span className="truncate text-[13.5px]">{cat.name}</span>
+                        {cat.badge && (
+                          <span
+                            className={`text-[9px] px-1.5 py-0.2 rounded font-black uppercase shrink-0 ${
+                              isSelected ? "bg-red-600 text-white" : "bg-red-100 text-red-600"
+                            }`}
+                          >
+                            {cat.badge}
+                          </span>
+                        )}
+                      </div>
                       <button
                         type="button"
                         onClick={(e) => handleChevronClick(cat.id, e)}
@@ -475,120 +543,134 @@ export default function CategoryProductPage({
             </div>
 
             {/* PRODUCT GRID (Screenshot 2: 4 products per row on large screens) */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-              {visibleProducts.map((prod) => {
-                const isFavorited = wishlist.includes(prod.id);
-                const isAdding = addingId === prod.id;
+            <div
+              key={`${activeCatId}-${activeSubCat}-${sortBy}`}
+              className={`transition-all duration-300 ease-out ${
+                isTransitioning
+                  ? "opacity-25 scale-[0.99] translate-y-2 blur-[0.5px] pointer-events-none"
+                  : "opacity-100 scale-100 translate-y-0 blur-0 animate-category-transition"
+              }`}
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                {visibleProducts.map((prod, index) => {
+                  const isFavorited = wishlist.includes(prod.id);
+                  const isAdding = addingId === prod.id;
 
-                return (
-                  <div
-                    key={prod.id}
-                    onClick={() =>
-                      onQuickView &&
-                      onQuickView({
-                        ...prod,
-                        unitPrice: prod.price,
-                        packPrice: prod.price,
-                        originalPackPrice: prod.mrp,
-                      })
-                    }
-                    className="group bg-white rounded-2xl border border-neutral-200 hover:border-neutral-300 shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between overflow-hidden p-2.5 sm:p-3 cursor-pointer"
-                  >
-                    {/* Image Area with Discount Badge */}
-                    <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-neutral-100/70 mb-2.5">
-                      {/* Orange/Red Discount Tag at bottom-right or top-left */}
-                      {prod.discount && (
-                        <div className="absolute bottom-2 right-2 z-10">
-                          <span className="bg-[#ff5722] text-white font-extrabold text-[10px] sm:text-[11px] px-2 py-0.5 rounded shadow-xs uppercase tracking-tight">
-                            {prod.discount}
+                  return (
+                    <div
+                      key={prod.id}
+                      style={{ animationDelay: `${Math.min(index * 25, 200)}ms` }}
+                      onClick={() =>
+                        onQuickView &&
+                        onQuickView({
+                          ...prod,
+                          unitPrice: prod.price,
+                          packPrice: prod.price,
+                          originalPackPrice: prod.mrp,
+                        })
+                      }
+                      className="group animate-card-glide bg-white rounded-2xl border border-neutral-200 hover:border-neutral-300 shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between overflow-hidden p-2.5 sm:p-3 cursor-pointer"
+                    >
+                      {/* Image Area with Discount Badge */}
+                      <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-neutral-100/70 mb-2.5">
+                        {/* Orange/Red Discount Tag: Rendered ONLY if tags are NOT present in image */}
+                        {prod.discount && !Boolean(
+                          prod.tagsInImage ||
+                          prod.hasImageTags ||
+                          (prod.image && IMAGES_WITH_EMBEDDED_TAGS.some((name) => prod.image.includes(name)))
+                        ) && (
+                          <div className="absolute bottom-2 right-2 z-10">
+                            <span className="bg-[#ff5722] text-white font-extrabold text-[10px] sm:text-[11px] px-2 py-0.5 rounded shadow-xs uppercase tracking-tight">
+                              {prod.discount}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Wishlist Heart Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleWishlist(prod.id);
+                          }}
+                          className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-xs active:scale-90 ${
+                            isFavorited
+                              ? "bg-rose-50 text-rose-600"
+                              : "bg-white/85 text-neutral-400 hover:text-rose-600 hover:bg-white"
+                          }`}
+                          title={isFavorited ? "Saved in Wishlist" : "Save to Wishlist"}
+                        >
+                          <span
+                            className={`material-symbols-outlined text-[16px] ${
+                              isFavorited ? "fill text-rose-600" : ""
+                            }`}
+                          >
+                            favorite
                           </span>
-                        </div>
-                      )}
+                        </button>
 
-                      {/* Wishlist Heart Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleWishlist(prod.id);
-                        }}
-                        className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-xs active:scale-90 ${
-                          isFavorited
-                            ? "bg-rose-50 text-rose-600"
-                            : "bg-white/85 text-neutral-400 hover:text-rose-600 hover:bg-white"
-                        }`}
-                        title={isFavorited ? "Saved in Wishlist" : "Save to Wishlist"}
-                      >
-                        <span
-                          className={`material-symbols-outlined text-[16px] ${
-                            isFavorited ? "fill text-rose-600" : ""
+                        {/* Image */}
+                        <img
+                          src={prod.image}
+                          alt={prod.name}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                        />
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 flex flex-col justify-between">
+                        {/* Price Row (Matching Screenshot 2) */}
+                        <div className="flex items-baseline flex-wrap gap-1.5 leading-none mb-1">
+                          <span className="text-[#c8102e] font-sans font-black text-sm sm:text-base">
+                            ₹{prod.price.toFixed(2)}
+                          </span>
+                          {prod.mrp && (
+                            <span className="text-neutral-400 line-through text-[11px] sm:text-xs">
+                              MRP ₹{prod.mrp.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Rating Stars (5 Gold Stars) */}
+                        <div className="flex items-center gap-1 mb-1.5">
+                          <div className="flex text-amber-400 text-xs">
+                            {"★".repeat(5)}
+                          </div>
+                          {prod.reviewsCount && (
+                            <span className="text-[10px] text-neutral-400">
+                              ({prod.reviewsCount})
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Title (2 lines max) */}
+                        <h3
+                          className="font-sans text-neutral-800 text-[12px] sm:text-[13px] font-medium leading-snug line-clamp-2 min-h-[34px] group-hover:text-red-600 transition-colors mb-2.5"
+                          title={prod.name}
+                        >
+                          {prod.name}
+                        </h3>
+
+                        {/* Add to Cart Button */}
+                        <button
+                          onClick={(e) => handleAddToCart(prod, e)}
+                          disabled={isAdding}
+                          className={`w-full py-2 rounded-xl font-heading font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer active:scale-95 shadow-2xs ${
+                            isAdding
+                              ? "bg-emerald-600 text-white"
+                              : "bg-[#0f1d3a] hover:bg-[#1a2d54] text-white"
                           }`}
                         >
-                          favorite
-                        </span>
-                      </button>
-
-                      {/* Image */}
-                      <img
-                        src={prod.image}
-                        alt={prod.name}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                      />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 flex flex-col justify-between">
-                      {/* Price Row (Matching Screenshot 2) */}
-                      <div className="flex items-baseline flex-wrap gap-1.5 leading-none mb-1">
-                        <span className="text-[#c8102e] font-sans font-black text-sm sm:text-base">
-                          ₹{prod.price.toFixed(2)}
-                        </span>
-                        {prod.mrp && (
-                          <span className="text-neutral-400 line-through text-[11px] sm:text-xs">
-                            MRP ₹{prod.mrp.toFixed(2)}
+                          <span className="material-symbols-outlined text-[15px]">
+                            {isAdding ? "check" : "shopping_bag"}
                           </span>
-                        )}
+                          <span>{isAdding ? "ADDED" : "ADD TO CART"}</span>
+                        </button>
                       </div>
-
-                      {/* Rating Stars (5 Gold Stars) */}
-                      <div className="flex items-center gap-1 mb-1.5">
-                        <div className="flex text-amber-400 text-xs">
-                          {"★".repeat(5)}
-                        </div>
-                        {prod.reviewsCount && (
-                          <span className="text-[10px] text-neutral-400">
-                            ({prod.reviewsCount})
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Title (2 lines max) */}
-                      <h3
-                        className="font-sans text-neutral-800 text-[12px] sm:text-[13px] font-medium leading-snug line-clamp-2 min-h-[34px] group-hover:text-red-600 transition-colors mb-2.5"
-                        title={prod.name}
-                      >
-                        {prod.name}
-                      </h3>
-
-                      {/* Add to Cart Button */}
-                      <button
-                        onClick={(e) => handleAddToCart(prod, e)}
-                        disabled={isAdding}
-                        className={`w-full py-2 rounded-xl font-heading font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer active:scale-95 shadow-2xs ${
-                          isAdding
-                            ? "bg-emerald-600 text-white"
-                            : "bg-[#0f1d3a] hover:bg-[#1a2d54] text-white"
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-[15px]">
-                          {isAdding ? "check" : "shopping_bag"}
-                        </span>
-                        <span>{isAdding ? "ADDED" : "ADD TO CART"}</span>
-                      </button>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
             {/* 5. PROGRESS & "SHOW MORE PRODUCTS" BUTTON (Matching Screenshot 4) */}

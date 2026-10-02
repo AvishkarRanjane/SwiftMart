@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import { useCart } from "../context/CartContext";
 import { PRODUCTS } from "../data/products";
+import { WHOLESALE_PRODUCTS } from "../data/wholesaleData";
+import { ALL_CATEGORY_PRODUCTS } from "../data/categoryPageData";
 
 export default function Wishlist({ onNavigate, onViewProduct }) {
   const {
@@ -14,16 +16,23 @@ export default function Wishlist({ onNavigate, onViewProduct }) {
     showToast,
   } = useCart();
 
-  // Find all wishlisted product objects
+  // Find all wishlisted product objects across wholesale, category pages, and retail catalogs
   const wishlistedProducts = useMemo(() => {
+    // Combine all known product catalogs, deduplicated by id
+    const allProducts = [
+      ...WHOLESALE_PRODUCTS,
+      ...ALL_CATEGORY_PRODUCTS,
+      ...PRODUCTS,
+    ].filter((p, idx, arr) => arr.findIndex((x) => x.id === p.id) === idx);
+
     return wishlist
-      .map((id) => PRODUCTS.find((p) => p.id === id))
+      .map((id) => allProducts.find((p) => p.id === id))
       .filter(Boolean);
   }, [wishlist]);
 
   // Recommended products if wishlist is empty or small
   const recommendedProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => !wishlist.includes(p.id)).slice(0, 4);
+    return WHOLESALE_PRODUCTS.filter((p) => !wishlist.includes(p.id)).slice(0, 4);
   }, [wishlist]);
 
   const handleMoveAllToCart = () => {
@@ -33,8 +42,11 @@ export default function Wishlist({ onNavigate, onViewProduct }) {
     });
     clearWishlist();
     showToast(
-      `All ${wishlistedProducts.length} items moved to your Basket! 🛒`,
+      `All ${wishlistedProducts.length} items moved to your Cart! 🛒`,
     );
+    if (onNavigate) {
+      onNavigate("cart");
+    }
   };
 
   return (
@@ -124,10 +136,9 @@ export default function Wishlist({ onNavigate, onViewProduct }) {
         {wishlistedProducts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-6">
             {wishlistedProducts.map((product) => {
-              const savings =
-                product.originalPrice > product.price
-                  ? product.originalPrice - product.price
-                  : 0;
+              const price = product.price ?? product.packPrice ?? product.unitPrice ?? 0;
+              const origPrice = product.originalPrice ?? product.originalPackPrice ?? Math.round(price * 1.3);
+              const savings = origPrice > price ? origPrice - price : 0;
 
               return (
                 <div
@@ -151,7 +162,7 @@ export default function Wishlist({ onNavigate, onViewProduct }) {
                   {/* Top Category Badge */}
                   <div className="flex items-center gap-2 mb-2 pr-10">
                     <span className="bg-neutral-100 text-neutral-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-full tracking-wider">
-                      {product.category}
+                      {product.category || product.subCategory || "Wholesale"}
                     </span>
                     {product.discount && (
                       <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">
@@ -176,15 +187,23 @@ export default function Wishlist({ onNavigate, onViewProduct }) {
                   {/* Product Details */}
                   <div className="flex flex-col flex-1">
                     <div className="flex items-center gap-1.5 mb-1 text-[11px]">
-                      <span className="bg-emerald-600 text-white font-black px-1.5 py-0.2 rounded-md flex items-center gap-0.5 text-[10px]">
-                        {product.rating} ★
-                      </span>
+                      {product.rating ? (
+                        <span className="bg-emerald-600 text-white font-black px-1.5 py-0.2 rounded-md flex items-center gap-0.5 text-[10px]">
+                          {product.rating} ★
+                        </span>
+                      ) : (
+                        <span className="bg-amber-400 text-neutral-900 font-black px-1.5 py-0.2 rounded-md flex items-center gap-0.5 text-[10px]">
+                          ★★★★★
+                        </span>
+                      )}
                       <span className="text-neutral-400 font-semibold">
-                        ({product.reviewsCount?.toLocaleString("en-IN") || 420})
+                        ({product.reviewsCount?.toLocaleString("en-IN") || "4.8k"})
                       </span>
-                      <span className="text-primary font-bold ml-auto text-[10px] uppercase">
-                        {product.brand}
-                      </span>
+                      {product.brand && (
+                        <span className="text-primary font-bold ml-auto text-[10px] uppercase">
+                          {product.brand}
+                        </span>
+                      )}
                     </div>
 
                     <h3
@@ -195,18 +214,18 @@ export default function Wishlist({ onNavigate, onViewProduct }) {
                     </h3>
 
                     <p className="text-xs text-neutral-500 line-clamp-1 mb-3">
-                      {product.shortName || product.description}
+                      {product.shortName || product.bulkPack || product.subCategory || product.description || "Wholesale product"}
                     </p>
 
                     {/* Price & Savings */}
                     <div className="mt-auto pt-2 border-t border-neutral-100 mb-3">
                       <div className="flex items-baseline gap-2">
                         <span className="text-lg font-black text-neutral-900">
-                          ₹{product.price.toLocaleString("en-IN")}
+                          ₹{price.toLocaleString("en-IN")}
                         </span>
-                        {product.originalPrice > product.price && (
+                        {origPrice > price && (
                           <span className="text-xs text-neutral-400 line-through">
-                            ₹{product.originalPrice.toLocaleString("en-IN")}
+                            ₹{origPrice.toLocaleString("en-IN")}
                           </span>
                         )}
                         {savings > 0 && (

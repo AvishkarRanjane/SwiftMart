@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { WHOLESALE_PRODUCTS } from "../data/wholesaleData";
+import { ALL_CATEGORY_PRODUCTS } from "../data/categoryPageData";
 
-export default function WholesaleWishlistDrawer({ isOpen, onClose, onQuickView }) {
+export default function WholesaleWishlistDrawer({ isOpen, onClose, onQuickView, onOpenCart }) {
   const { wishlist, removeFromWishlist, addToCart, clearWishlist, showToast } =
     useCart();
 
@@ -57,17 +58,24 @@ export default function WholesaleWishlistDrawer({ isOpen, onClose, onQuickView }
 
   if (!shouldRender) return null;
 
-  const savedProducts = WHOLESALE_PRODUCTS.filter((p) =>
-    wishlist.includes(p.id)
-  );
+  // Lookup products from ALL known catalogs — WHOLESALE_PRODUCTS first, then category pages
+  const ALL_PRODUCTS = [...WHOLESALE_PRODUCTS, ...ALL_CATEGORY_PRODUCTS];
+  const savedProducts = ALL_PRODUCTS.filter((p) => wishlist.includes(p.id))
+    .filter((p, idx, arr) => arr.findIndex((x) => x.id === p.id) === idx); // deduplicate
 
   const handleAddAllToCart = () => {
     if (savedProducts.length === 0) return;
     savedProducts.forEach((prod) => {
       addToCart(prod, 1);
     });
-    showToast(`Added ${savedProducts.length} wholesale packs to cart! 🛒`);
+    clearWishlist();
+    showToast(`Moved all ${savedProducts.length} wholesale packs to cart! 🛒`);
     handleSmoothClose();
+    if (onOpenCart) {
+      setTimeout(() => {
+        onOpenCart();
+      }, 350);
+    }
   };
 
   return (
@@ -178,7 +186,7 @@ export default function WholesaleWishlistDrawer({ isOpen, onClose, onQuickView }
                   </h4>
                   <div className="flex items-baseline gap-2 mt-1">
                     <span className="text-xs sm:text-sm font-heading font-black text-neutral-950">
-                      ₹{product.packPrice.toLocaleString("en-IN")}
+                      ₹{(product.packPrice ?? product.price ?? 0).toLocaleString("en-IN")}
                     </span>
                     <span className="text-[10px] sm:text-[11px] text-emerald-600 font-bold font-sans">
                       {product.discount}
