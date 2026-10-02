@@ -1,4 +1,4 @@
-# ⚡ SwiftMart — Quick-Commerce & Flagship Retail Platform
+# ⚡ SwiftMart — Quick-Commerce & B2B Wholesale Marketplace
 
 <div align="center">
 
@@ -8,9 +8,9 @@
 [![Vercel](https://img.shields.io/badge/Deploy_with-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-**Next-generation Flipkart & Blinkit-inspired 15-minute quick-commerce & flagship retail platform with interactive multi-feed reels, 3-second auto-sliding drops, dynamic color variant image swapping, live store catalogue with spec filters, persistent basket, and Apple frosted glassmorphism UI.**
+**Full-stack inspired quick-commerce, retail, and B2B wholesale marketplace with a complete 3-Tier Enterprise Workflow (Customer, Vendor, and 20-Module 2FA Admin Control Panel).**
 
-[Explore Live Demo](https://swiftmart-three.vercel.app) • [Key Features](#-key-features) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start)
+[Explore Repository](https://github.com/AvishkarRanjane/SwiftMart) • [3-Tier Architecture](#-3-tier-enterprise-architecture) • [Key Features](#-key-features) • [Admin Control Panel](#-admin-control-panel-20-modules) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [Vercel Deployment](#-vercel-deployment)
 
 </div>
 
@@ -18,71 +18,121 @@
 
 ## 🌟 Overview
 
-**SwiftMart** combines the lightning-fast darkstore fulfillment of instant grocery apps (Blinkit, Zepto) with the comprehensive catalog depth and flagship electronics showcases of modern marketplaces (Flipkart, Amazon). Built with a modern, high-performance **React 19 + Vite 8** foundation and an **Apple-inspired frosted glassmorphism interface**, SwiftMart delivers fluid 60fps micro-animations, optical icon alignment, and responsive layouts across mobile, tablet, and ultra-wide displays.
+**SwiftMart** bridges consumer retail and business-to-business wholesale commerce. Inspired by platforms like Blinkit, Zepto, Flipkart, and IndiaMART, it delivers lightning-fast quick-commerce darkstore fulfillment alongside high-volume B2B bulk purchases with tiered discounts, profit margin calculators, vendor onboarding, and an enterprise-grade 20-module Admin Control Panel protected by Two-Factor Authentication (2FA).
+
+Built with a high-performance **React 19 + Vite 8** foundation and an **Apple-inspired frosted glassmorphism interface**, SwiftMart ensures fluid 60fps micro-animations, smart section auto-collapse with scroll-spy, responsive navigation, and seamless single-page application (SPA) edge routing.
+
+---
+
+## 🏛️ 3-Tier Enterprise Architecture
+
+SwiftMart is architected into three distinct, interconnected user workflows:
+
+```text
+                                  ┌─────────────────────────────┐
+                                  │      SwiftMart Platform     │
+                                  └──────────────┬──────────────┘
+                                                 │
+            ┌────────────────────────────────────┼────────────────────────────────────┐
+            ▼                                    ▼                                    ▼
+┌───────────────────────┐            ┌───────────────────────┐            ┌───────────────────────┐
+│   CUSTOMER WORKFLOW   │            │    VENDOR WORKFLOW    │            │     ADMIN CONTROL     │
+├───────────────────────┤            ├───────────────────────┤            ├───────────────────────┤
+│ • Browse & Smart Reel │            │ • Become Vendor Modal │            │ • 2FA Secure Access   │
+│ • Wholesale Margin Clc│            │ • Multi-Step Verify   │            │ • 20 System Modules   │
+│ • Persistent Cart     │            │ • Vendor Dashboard    │            │ • User & Vendor Audit │
+│ • Customer Dashboard  │            │ • Product Management  │            │ • Payouts & Approvals │
+│ • Order Live Tracking │            │ • Order Fulfillment   │            │ • Logistics & Alerts  │
+└───────────────────────┘            └───────────────────────┘            └───────────────────────┘
+```
 
 ---
 
 ## ✨ Key Features
 
-### 🛒 1. Dynamic Multi-Feed Home Experience
+### 🛒 1. Customer Workflow & Storefront
+- **Dynamic Multi-Feed Home Experience**: 14 category pill selectors, 3-second auto-sliding hero carousel with hover pause and manual controls.
+- **Smart Section Collapse & Scroll-Spy**: When browsing deals or expanding category grids, scrolling away automatically collapses previous sections without jumping or layout shift.
+- **Category Product Pages**: Rich category banners, faceted sort/filter chips, and real-time product discovery across Groceries, Electronics, Fashion, Home & Kitchen, Toys, and Hardware.
+- **Dynamic Color Variant Swapping**: Interactive color swatches (e.g. boAt Airdopes in Gunmetal Black, Cobalt Blue, Pure White, Olive Green) that instantly update both the 4K studio display and thumbnail reels.
+- **Customer Dashboard (6 Dedicated Tabs)**:
+  - 👤 **My Profile**: Personal information, contact credentials, and membership tier.
+  - 📦 **My Orders**: Real-time order history with visual step-by-step progress tracking (*Confirmed → Packed → Out for Delivery → Delivered*).
+  - 📍 **Saved Addresses**: Address book management with default tags (Home, Work, Warehouse).
+  - 💳 **Swift Wallet & Passbook**: Cashbacks, refund balances, and transaction history.
+  - 💖 **Wishlist**: Saved items with 1-click "Move to Basket".
+  - 🔔 **Notifications**: Order milestones, promo alerts, and price drops.
 
-- **Top Sub-Category Ribbon**: 14 category pill selectors (_For You_, _Fashion_, _Mobiles_, _Electronics_, _Home_, _Food & More_, etc.) with smooth horizontal drag.
-- **3-Second Auto-Sliding Hero Carousel**: Auto-slides left every 3,000ms across 4 flagship product drops (5G Mobiles, Orthopedic Mattresses, POCO Turbo series, and boAt ANC Audio) with hover pause, manual chevron controls, and reactive pagination indicators.
-- **Curated Multi-Section Deal Feeds**:
-  - _Trending Deals on Furniture_ (Shoe Racks, Drawers, Home Temples, Kid Seating)
-  - _Add to Your Wishlist_ (Bestsellers, Top Rated, Most Loved, In Focus Now)
-  - _Top Value Zone_ (Earrings, Garment Covers, Anklets)
-  - _Popular Nearby Express Pod_ (boAt Audio, Milton Thermos, Chronograph Watches, Sneakers)
-  - _Trending Gadgets & Appliances_ (True Wireless, Trimmers, Neckbands, Mixers)
-  - _Hair & Skincare Essentials_ (Face Wash, Hair Clips, Men's Grooming, Hair Oils)
-  - _Best Value Deals on Fashion_ (Casual Sneakers, Sarees, Sports Shoes, Party Gowns)
-- **SuperSaver Grocery & Flagship 40-Product Reel**: Clean card layouts with category discount badges, star ratings, pack sizes, and 1-tap navigation.
+---
 
-### 🎧 2. Dynamic Color Variant Image Swapping
+### 🏬 2. Vendor Workflow & Portal
+- **"Become a Vendor" Application Modal**:
+  - Step 1: Personal & Primary Contact Information
+  - Step 2: Registered Business Name, Trade Type & GSTIN / PAN
+  - Step 3: Bank Account Verification (Account Number, IFSC, UPI)
+  - Step 4: Identity & Business Document Upload simulation
+  - Instant submission review with automated status feedback.
+- **Vendor Dashboard (6 Functional Views)**:
+  - 📊 **Overview**: Total sales, active product counts, pending shipments, and payout balances.
+  - 📦 **Products**: Complete catalog manager with **Add Product**, **Edit**, and **Delete** actions.
+  - 🛒 **Orders**: Customer order fulfillment pipeline with status updates (*Pending → Packed → Dispatched*).
+  - 📉 **Inventory**: Stock level monitoring with real-time low-stock alerts.
+  - 💰 **Payouts**: Earnings ledger and settlement withdrawal requests.
+  - ⚙️ **Store Settings**: Business profile, logo, support email, and notification preferences.
 
-- **Multi-Angle Color Synchronisation**:
-  - Selecting any color swatch (e.g. **Gunmetal Black**, **Cobalt Blue**, **Pure White**, or **Olive Green** on the _boAt Airdopes 141 ANC_) immediately updates **both the main 4K studio display image and all vertical thumbnails** on the left to show that specific color.
-  - Dedicated 4-angle studio photography per color variant (Case Open Front, 45° Cradle Angle, Standing Earbuds Pair, Closed Pocket Case).
-- **Interactive Color Swatches**: High-contrast tactile active states with checkmark indicators and real-time inventory readouts (_"⚡ In Stock at Pod 400001"_).
+---
 
-### 🔍 3. Store Catalogue & Spec Filter Engine
+### 🛡️ 3. Admin Control Panel (20 Modules with 2FA)
 
-- **Faceted Sidebar Filters**:
-  - **Live Search**: Instant keyword debounced search across titles, brands, and categories.
-  - **Category Selector**: Filter between _Grocery & Staples_, _Electronics & Audio_, _DMart Value Packs_, and _Smart Gadgets & Hardware_ with live item counters.
-  - **Dynamic Price Slider**: Real-time interactive range slider (₹20 to ₹90,000+).
-  - **Minimum Rating Chips**: Multi-select pills for `All`, `4.5★`, `4.7★`, and `4.8★`.
-  - **In-Stock Only Filter**: Toggle out-of-stock items instantly.
-  - **Sort Controls**: Sort by _Featured_, _Price: Low to High_, _Price: High to Low_, or _Highest Rated_.
+Access protected with a dedicated **2-Factor Authentication (2FA)** gate:
+- **Default PIN**: `123456`
+- **Instant Demo Switch**: Single-click access directly from the account navigation dropdown.
 
-### 📍 4. Darkstore Pincode & Express Delivery
+#### The 20 Admin Modules:
+| # | Module | Core Functionality |
+|---|--------|---------------------|
+| 1 | **Dashboard Overview** | Platform Gross Merchandise Value (GMV), active user counts, revenue graphs, and key performance indicators. |
+| 2 | **Customer Management** | View registered customer profiles, lifetime spends, order frequencies, and block/activate accounts. |
+| 3 | **Vendor Management** | Review vendor onboarding applications, approve/reject GSTIN documents, and adjust commission rates. |
+| 4 | **Product Management** | Marketplace-wide product catalog moderation, approval queues, price controls, and stock updates. |
+| 5 | **Category Management** | Create, edit, and organize top-level categories and sub-categories with custom imagery and badges. |
+| 6 | **Order Management** | Master control of all customer orders, live statuses, invoice downloads, and manual overrides. |
+| 7 | **Inventory Management** | Darkstore stock tracking, low-stock threshold triggers, and bulk reorder automations. |
+| 8 | **Payment & Transactions** | Financial transaction log across Razorpay, UPI, Net Banking, and COD with settlement states. |
+| 9 | **Vendor Payouts** | Vendor balance settlements, pending payout request reviews, and payment approvals. |
+| 10 | **Sales & Analytics** | Deep analytics on gross margins, category-wise revenue breakdowns, and seasonal sales trends. |
+| 11 | **Market Insights** | Demand forecasting, popular search keywords, top-performing SKUs, and user traffic heatmaps. |
+| 12 | **Offers & Discounts** | Create promo coupon codes, flat percentage vouchers, and flash deal schedules. |
+| 13 | **Reviews & Ratings** | User feedback moderation, flagged comment removal, and product sentiment scores. |
+| 14 | **Darkstore & Logistics** | Darkstore pod allocation, delivery fleet rider tracking, and pincode serviceability rules. |
+| 15 | **Helpdesk & Complaints** | Customer support ticket resolution, escalation workflows, and SLA response tracking. |
+| 16 | **Banner & Content** | Homepage hero carousel banner uploads, marketing taglines, and announcement ribbons. |
+| 17 | **Notifications & Alerts** | System-wide broadcast alerts, SMS/Email campaign triggers, and push notifications. |
+| 18 | **Admin Roles & Permissions** | Role-Based Access Control (RBAC) across Super Admins, Operations Managers, and Support Agents. |
+| 19 | **System Settings** | Platform base currency, default GST tax rates, platform fees, and darkstore delivery charges. |
+| 20 | **Security & Audit Logs** | Real-time immutable audit trail recording admin logins, sensitive overrides, and IP addresses. |
 
-- **6-Digit Pincode Verification**: Interactive delivery checker testing serviceable Indian pincodes with instant darkstore status readout.
-- **15-20 Minute Express Dispatch**: Guaranteed slot confirmation and local pod routing.
+---
 
-### 💖 5. Dedicated Wishlist & Persistent Basket
-
-- **Global Wishlist Synchronization**: Real-time heart toggles across all product feeds, catalogue cards, and PDPs backed by `localStorage` persistence.
-- **1-Click "Move to Basket"**: Seamless basket migration for single items or full wishlist bulk transfer.
-- **Full-Featured Shopping Bag**: Promo coupon engine, price breakdown, item quantity steppers, and animated checkout modal.
-
-### 🎨 6. Apple-Inspired Frosted Glassmorphism UI
-
-- **Header Navigation Bar**: Frosted blur (`backdrop-blur-xl bg-white/80 border-b border-black/[0.06]`), Apple SF Pro font styling, optical icon weights (`wght 350, opsz 20`), and textless minimalist action icons.
-- **Mobile Floating Bottom Dock**: Tactile mobile navigation with real-time reactive badge counters.
+### 📦 4. B2B Wholesale Bulk-Buying System
+- **Tiered Volume Pricing**: Automatic per-unit discounts based on Minimum Order Quantity (MOQ) brackets (e.g. 10+, 50+, 100+ units).
+- **Wholesale Margin Calculator**: Interactive simulator computing resale revenue, net margin (₹), and return percentage (%).
+- **Wholesale Cart Drawer**: Dedicated bulk cart drawer showing aggregate margin calculations, MOQ validations, and tax breakdowns.
+- **Wholesale Support Drawer**: 1-click direct WhatsApp, phone callback, and quotation request integration.
+- **Quick View Modal**: Rapid modal previews without losing catalog navigation position.
 
 ---
 
 ## 🏗️ Tech Stack
 
-| Layer                       | Technology                                                                       |
-| --------------------------- | -------------------------------------------------------------------------------- |
-| **Frontend Core**           | [React 19](https://react.dev/) + JSX                                             |
-| **Build & Bundler**         | [Vite 8](https://vitejs.dev/) with Rollup/Oxc pipeline                           |
-| **Styling & Design System** | [Tailwind CSS 3.4](https://tailwindcss.com/) + PostCSS + CSS Variables           |
-| **Typography & Icons**      | Inter font + [Google Material Symbols Outlined](https://fonts.google.com/icons)  |
-| **State Management**        | React Context API (`CartContext`, `AuthContext`) with `localStorage` persistence |
-| **Deployment & Hosting**    | [Vercel](https://vercel.com/) Edge Network                                       |
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Frontend Framework** | [React 19](https://react.dev/) | Component architecture, hooks, and responsive UX |
+| **Bundler & Tooling** | [Vite 8](https://vitejs.dev/) | Lightning-fast HMR and optimized production bundling |
+| **Styling & Design System** | [Tailwind CSS 3.4](https://tailwindcss.com/) | Apple-inspired frosted glassmorphism and responsive design |
+| **Icons & Typography** | [Google Material Symbols](https://fonts.google.com/icons) + Inter | Optical sizing, variable weights, and typography |
+| **State Management** | React Context API (`CartContext`, `AuthContext`) | Global shopping bag, wishlist, and authentication with `localStorage` |
+| **Deployment & Edge** | [Vercel](https://vercel.com/) | Edge network hosting with SPA rewrite configuration |
 
 ---
 
@@ -92,38 +142,62 @@
 SwiftMart/
 ├── .gitignore
 ├── .oxlintrc.json
-├── index.html                      # Root HTML entry point
-├── package.json                    # Project dependencies & scripts
+├── index.html                           # Root HTML entry point
+├── package.json                         # Dependencies & npm scripts
 ├── package-lock.json
-├── vite.config.js                  # Vite bundler configuration
-├── tailwind.config.js               # Tailwind CSS theme extensions
-├── postcss.config.js
-├── README.md                       # Documentation
+├── postcss.config.js                    # PostCSS configuration
+├── tailwind.config.js                   # Tailwind CSS styling extensions
+├── vercel.json                          # Vercel SPA edge rewrite configuration
+├── vite.config.js                       # Vite build configuration
+├── README.md                            # Complete Project Documentation
 ├── public/
-│   └── images/                     # Curated 4K product photos & deal assets
+│   ├── favicon.svg                      # SwiftMart SVG branding
+│   └── images/                          # Curated 4K product photos & category banners
+│       ├── category-banners/            # Banners for all retail categories
+│       ├── furniture/                   # Curated furniture showcase
+│       └── products/                    # Wholesale & retail product imagery
 └── src/
-    ├── components/                 # Reusable UI components
-    │   ├── Header.jsx              # Frosted glassmorphism header & dock
-    │   ├── Footer.jsx              # Store footer with links & payment badges
-    │   ├── Toast.jsx               # Floating notification toast
-    │   ├── OrderSuccessModal.jsx   # Animated checkout success overlay
-    │   └── PincodeModal.jsx        # Pincode delivery selector
+    ├── main.jsx                         # React DOM mount point
+    ├── App.jsx                          # Master application router & navigation state
+    ├── index.css                        # Glassmorphism, animations & Tailwind directives
+    ├── components/                      # Reusable modular UI components
+    │   ├── Header.jsx                   # Navigation header with user, vendor & admin menus
+    │   ├── Footer.jsx                   # Footer with quick links & badges
+    │   ├── ProductCard.jsx              # Reusable product card with quick-actions
+    │   ├── CuratedCategoryGrid.jsx      # Expandable category deal grids with auto-collapse
+    │   ├── BecomeVendorModal.jsx        # Multi-step vendor registration & onboarding
+    │   ├── OrderSuccessModal.jsx        # Animated checkout completion confirmation
+    │   ├── PincodeModal.jsx             # Darkstore pincode serviceability checker
+    │   ├── Toast.jsx                    # Floating toast notification
+    │   ├── WholesaleAccountModal.jsx    # Wholesale B2B account login/signup modal
+    │   ├── WholesaleCalculator.jsx      # Margin & ROI calculator simulator
+    │   ├── WholesaleCartDrawer.jsx      # B2B cart drawer with margin breakdown
+    │   ├── WholesaleHero.jsx            # Wholesale promotional hero banner
+    │   ├── WholesaleQuickViewModal.jsx  # Rapid product preview modal
+    │   ├── WholesaleSupportDrawer.jsx   # Dedicated wholesale helpdesk & WhatsApp drawer
+    │   └── WholesaleWishlistDrawer.jsx  # Saved wholesale items drawer
     ├── context/
-    │   ├── CartContext.jsx         # Cart, Wishlist, and Toast state provider
-    │   └── AuthContext.jsx         # Authentication & user profile state
+    │   ├── AuthContext.jsx              # Customer, Vendor & Admin authentication state
+    │   └── CartContext.jsx              # Cart, Wishlist, Margin & Toast state
     ├── data/
-    │   └── products.js             # 40 products across 4 categories with variants
-    ├── pages/
-    │   ├── Home.jsx                # Feed homepage with 3s auto-slider
-    │   ├── Catalogue.jsx           # Store catalogue with faceted sidebar filters
-    │   ├── ProductDetail.jsx       # PDP with color variant image swapping
-    │   ├── Cart.jsx                # Shopping bag with coupon engine
-    │   ├── Wishlist.jsx            # Saved items management page
-    │   ├── Login.jsx               # Member sign-in
-    │   └── SignUp.jsx              # New account registration
-    ├── App.jsx                     # Route coordinator & view switcher
-    ├── index.css                   # Global styles, glassmorphism, animations
-    └── main.jsx                    # React DOM root mounting
+    │   ├── products.js                  # Flagship 40-product consumer dataset
+    │   ├── categoryPageData.js          # Dedicated category-level product catalogs
+    │   └── wholesaleData.js             # Wholesale B2B products with tiered pricing & MOQs
+    └── pages/
+        ├── Home.jsx                     # Flagship B2C homepage with auto-sliding hero
+        ├── SinglePageWholesale.jsx      # Dedicated single-page B2B wholesale store
+        ├── CategoryProductPage.jsx      # Category-specific catalog view with filters
+        ├── CustomerDashboard.jsx        # Customer portal (Profile, Orders, Wallet, Addresses)
+        ├── VendorDashboard.jsx          # Vendor portal (Products, Orders, Stock, Payouts)
+        ├── AdminDashboard.jsx           # 20-Module 2FA Admin Control Panel
+        ├── ProductDetail.jsx            # PDP with multi-angle color variant swapping
+        ├── Catalogue.jsx                # Searchable store catalogue with faceted filters
+        ├── Cart.jsx                     # Full shopping bag with coupon discounts
+        ├── Wishlist.jsx                 # Global saved items page
+        ├── Login.jsx                    # Customer sign-in page
+        ├── SignUp.jsx                   # Customer registration page
+        ├── Account.jsx                  # Account profile management
+        └── BrandsSpotlight.jsx          # Partner brands showcase
 ```
 
 ---
@@ -131,32 +205,31 @@ SwiftMart/
 ## 🚀 Quick Start
 
 ### Prerequisites
+- **Node.js**: v18.0.0 or higher
+- **npm**: v9.0.0 or higher
 
-- [Node.js](https://nodejs.org/) (v18.0.0 or higher recommended)
-- [npm](https://www.npmjs.com/) (v9.0.0 or higher)
-
-### Installation
+### Local Development Setup
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/AvishkarRanjane/SwiftMart.git
 
-# 2. Navigate into the project folder
+# 2. Navigate to the project directory
 cd SwiftMart
 
 # 3. Install dependencies
 npm install
 
-# 4. Start the local development server
+# 4. Start the Vite development server
 npm run dev
 ```
 
-Visit **`http://localhost:5173/`** in your browser to view the application.
+Open **`http://localhost:5173/`** in your browser to view the application.
 
 ### Production Build
 
 ```bash
-# Build optimized production bundle
+# Compile and optimize production bundle into /dist
 npm run build
 
 # Preview the production build locally
@@ -165,15 +238,48 @@ npm run preview
 
 ---
 
-## 🌐 Live Deployment
+## 🌐 Vercel Deployment
 
-The application is deployed on **Vercel**:
+This project includes [`vercel.json`](vercel.json) pre-configured with client-side SPA rewrites:
 
-- **Live URL**: [https://swiftmart-three.vercel.app](https://swiftmart-three.vercel.app)
-- **GitHub Repository**: [https://github.com/AvishkarRanjane/SwiftMart](https://github.com/AvishkarRanjane/SwiftMart)
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+### Steps to Deploy:
+1. Push your latest code to GitHub:
+   ```bash
+   git push origin main
+   ```
+2. Navigate to [vercel.com/new](https://vercel.com/new).
+3. Import the repository: **`AvishkarRanjane/SwiftMart`**.
+4. Vercel automatically detects the **Vite** framework:
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+5. Click **Deploy**. Your application will be live within seconds with continuous deployment enabled for every future push to `main`.
+
+---
+
+## 🔑 Quick Demo Credentials
+
+For quick exploration of the different roles:
+
+| Role | Access Route | Demo Credentials |
+|---|---|---|
+| **Customer** | Header → `Account` or `Sign In` | Email: `alex.morgan@example.com` / Any password |
+| **Vendor** | Header → `Account` → `Vendor Dashboard` | Instant access via dropdown |
+| **Vendor Application** | Header → `Become a Vendor` | Interactive 4-step modal |
+| **Admin Panel** | Header → `Account` → `Admin Control Panel` | **2FA Security PIN:** `123456` |
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — feel free to use and adapt for personal or commercial projects.
+This project is open-source and available under the [MIT License](LICENSE).
