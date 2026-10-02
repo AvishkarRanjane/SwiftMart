@@ -1,230 +1,246 @@
 import React, { useState } from "react";
-import { CartProvider } from "./context/CartContext";
+import { CartProvider, useCart } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Toast from "./components/Toast";
-import PincodeModal from "./components/PincodeModal";
 import OrderSuccessModal from "./components/OrderSuccessModal";
-import Home from "./pages/Home";
-import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import Catalogue from "./pages/Catalogue";
-import Wishlist from "./pages/Wishlist";
-import BrandsSpotlight from "./pages/BrandsSpotlight";
-import Account from "./pages/Account";
+import SinglePageWholesale from "./pages/SinglePageWholesale";
+import CategoryProductPage from "./pages/CategoryProductPage";
+import CustomerDashboard from "./pages/CustomerDashboard";
+import VendorDashboard from "./pages/VendorDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import WholesaleCartDrawer from "./components/WholesaleCartDrawer";
+import WholesaleWishlistDrawer from "./components/WholesaleWishlistDrawer";
+import WholesaleQuickViewModal from "./components/WholesaleQuickViewModal";
+import WholesaleAccountModal from "./components/WholesaleAccountModal";
+import WholesaleSupportDrawer from "./components/WholesaleSupportDrawer";
+import BecomeVendorModal from "./components/BecomeVendorModal";
 
-function SwiftMartApp() {
-  const [currentPage, setCurrentPage] = useState("home");
-  const [selectedProductId, setSelectedProductId] = useState("boat-141-anc");
-  const [isPincodeModalOpen, setIsPincodeModalOpen] = useState(false);
+function SwiftMartWholesaleApp() {
+  const [currentPage, setCurrentPage] = useState("home"); // 'home' | 'category' | 'customer-dashboard' | 'vendor-dashboard'
+  const [selectedCategory, setSelectedCategory] = useState("health-beauty");
+  const [selectedSubCategory, setSelectedSubCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilterQuery, setActiveFilterQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+  const [isWishlistDrawerOpen, setIsWishlistDrawerOpen] = useState(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [isSupportDrawerOpen, setIsSupportDrawerOpen] = useState(false);
+  const [isBecomeVendorModalOpen, setIsBecomeVendorModalOpen] = useState(false);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
-  // Navigation History Stack (supports backtracking through similar products & pages)
-  const [historyStack, setHistoryStack] = useState([]);
-  const [brandSpotlightData, setBrandSpotlightData] = useState(null);
-  const [restoredState, setRestoredState] = useState(null);
+  const { setIsOrderSuccessOpen, setLastOrderDetails } = useCart();
 
-  // Helper for glitch-free scroll to top
-  const scrollToTopInstant = () => {
-    document.documentElement.style.scrollBehavior = "auto";
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    document.documentElement.scrollTop = 0;
-    setTimeout(() => {
-      document.documentElement.style.scrollBehavior = "smooth";
-    }, 50);
+  // Smooth scroll to any section ID on the continuous single page
+  const scrollToSection = (sectionId) => {
+    if (sectionId === "top") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
-  // Dedicated Logo Click: clean reset to root Home page
-  const handleLogoClick = () => {
-    setHistoryStack([]);
-    setSearchQuery("");
-    setActiveFilterQuery("");
-    setActiveCategory("all");
-    setBrandSpotlightData(null);
-    setRestoredState(null);
+  const handleNavigateHome = () => {
     setCurrentPage("home");
-    scrollToTopInstant();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Scroll to top on navigation
-  const navigate = (page, category = "all") => {
-    if (page !== currentPage) {
-      const currentScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-      setHistoryStack((prev) => [
-        ...prev,
-        {
-          page: currentPage,
-          productId: selectedProductId,
-          category: activeCategory,
-          brandSpotlight: brandSpotlightData,
-          scrollY: currentScrollY,
-        },
-      ]);
-    }
-    if (page !== "product") {
-      setBrandSpotlightData(null);
-    }
-    setCurrentPage(page);
-    if (category) setActiveCategory(category);
-    scrollToTopInstant();
+  const handleNavigateCustomer = () => {
+    setCurrentPage("customer-dashboard");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleViewProduct = (productId, spotlight = null, extraContext = {}) => {
-    const currentScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-    // Push current view to history stack (even if navigating between products)
-    setHistoryStack((prev) => [
-      ...prev,
-      {
-        page: currentPage,
-        productId: selectedProductId,
-        category: activeCategory,
-        brandSpotlight: brandSpotlightData,
-        scrollY: currentScrollY,
-        expandedSection: extraContext?.expandedSection !== undefined ? extraContext.expandedSection : null,
-      },
-    ]);
-    setSelectedProductId(productId);
-    setBrandSpotlightData(spotlight);
-    setCurrentPage("product");
-    scrollToTopInstant();
+  const handleNavigateVendor = () => {
+    setCurrentPage("vendor-dashboard");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleBack = () => {
-    if (historyStack.length > 0) {
-      // Pop the most recent view from history stack
-      const previous = historyStack[historyStack.length - 1];
-      setHistoryStack((prev) => prev.slice(0, -1));
-      setCurrentPage(previous.page);
-      if (previous.productId) {
-        setSelectedProductId(previous.productId);
-      }
-      if (previous.category) {
-        setActiveCategory(previous.category);
-      }
-      setBrandSpotlightData(previous.brandSpotlight || null);
-
-      setRestoredState({
-        page: previous.page,
-        scrollY: previous.scrollY || 0,
-        expandedSection: previous.expandedSection || null,
-        timestamp: Date.now(),
-      });
-    } else {
-      setCurrentPage("home");
-      setBrandSpotlightData(null);
-      scrollToTopInstant();
-    }
+  const handleNavigateAdmin = () => {
+    setCurrentPage("admin-dashboard");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSearchSubmit = (query) => {
-    const trimmed = query ? query.trim() : "";
-    if (!trimmed && currentPage !== "catalogue") {
-      return;
+    setSearchQuery(query);
+    if (currentPage !== "home") {
+      setCurrentPage("home");
     }
-    const currentScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-    setHistoryStack((prev) => [
-      ...prev,
-      {
-        page: currentPage,
-        productId: selectedProductId,
-        category: activeCategory,
-        scrollY: currentScrollY,
-      },
-    ]);
-    setActiveFilterQuery(trimmed);
-    setSearchQuery(trimmed);
-    setCurrentPage("catalogue");
-    scrollToTopInstant();
+    setTimeout(() => scrollToSection("all-products"), 100);
   };
 
-  const handleClearFilter = () => {
-    setActiveFilterQuery("");
-    setSearchQuery("");
+  const handleSelectCategory = (catId, subCat = "all", shouldScroll = true) => {
+    const homeSections = [
+      "all-products",
+      "flash-deals",
+      "daily-necessities",
+      "electronics-gadgets",
+      "wholesale-faq",
+    ];
+
+    if (homeSections.includes(catId)) {
+      if (currentPage !== "home") {
+        setCurrentPage("home");
+        setTimeout(() => scrollToSection(catId), 100);
+      } else {
+        scrollToSection(catId);
+      }
+      return;
+    }
+
+    // Open dedicated Category Product Listing Page (matching DeoDap layout)
+    const isNewPage = currentPage !== "category";
+    setSelectedCategory(catId);
+    setSelectedSubCategory(subCat || "all");
+    setCurrentPage("category");
+    if (isNewPage && shouldScroll) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleCheckoutSuccess = (orderSummary) => {
+    setLastOrderDetails({
+      orderId: "INV-" + Math.floor(100000 + Math.random() * 900000),
+      grandTotal: orderSummary.grandTotal,
+      gstin: orderSummary.gstin,
+      gstCredit: orderSummary.gstCredit,
+      itemCount: orderSummary.itemCount,
+    });
+    setIsOrderSuccessOpen(true);
   };
 
   return (
-    <div className="min-h-screen bg-flipkart-bg/60 font-body-md text-on-surface flex flex-col justify-between selection:bg-primary selection:text-white">
-      {/* Header */}
+    <div className="min-h-screen bg-[#f8fafc] font-sans text-neutral-900 flex flex-col justify-between selection:bg-red-600 selection:text-white">
+      {/* Upgraded Navigation & Top Bar (Matching Reference Images 1 & 2) */}
       <Header
-        currentPage={currentPage}
-        onNavigate={navigate}
-        onLogoClick={handleLogoClick}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         onSearchSubmit={handleSearchSubmit}
+        onOpenCart={() => setIsCartDrawerOpen(true)}
+        onOpenWishlist={() => setIsWishlistDrawerOpen(true)}
+        onOpenAccount={() => setIsAccountModalOpen(true)}
+        onOpenSupport={() => setIsSupportDrawerOpen(true)}
+        onSelectCategory={handleSelectCategory}
+        onScrollToSection={scrollToSection}
+        onLogoClick={handleNavigateHome}
+        onNavigateCustomer={handleNavigateCustomer}
+        onNavigateVendor={handleNavigateVendor}
+        onNavigateAdmin={handleNavigateAdmin}
+        onOpenBecomeVendor={() => setIsBecomeVendorModalOpen(true)}
       />
 
-      {/* Main Content Area (offset for single-row Apple frosted header) */}
-      <div className="pt-[64px] sm:pt-[70px] flex-1">
-        {currentPage === "home" && (
-          <Home
-            onNavigate={navigate}
-            onViewProduct={handleViewProduct}
-            filterQuery={activeFilterQuery}
-            onClearFilter={handleClearFilter}
-            restoredState={restoredState}
+      {/* Main Content: Home Single-Page Wholesale | Category Page | Customer Dashboard | Vendor Dashboard | Admin Dashboard */}
+      <main className="flex-1 w-full">
+        {currentPage === "admin-dashboard" ? (
+          <AdminDashboard
+            onNavigateHome={handleNavigateHome}
+            onNavigateCustomer={handleNavigateCustomer}
+            onNavigateVendor={handleNavigateVendor}
+            onQuickView={(product) => setQuickViewProduct(product)}
+          />
+        ) : currentPage === "customer-dashboard" ? (
+          <CustomerDashboard
+            onNavigateHome={handleNavigateHome}
+            onNavigateVendor={handleNavigateVendor}
+            onOpenBecomeVendor={() => setIsBecomeVendorModalOpen(true)}
+            onOpenCart={() => setIsCartDrawerOpen(true)}
+            onQuickView={(product) => setQuickViewProduct(product)}
+          />
+        ) : currentPage === "vendor-dashboard" ? (
+          <VendorDashboard
+            onNavigateHome={handleNavigateHome}
+            onNavigateCustomer={handleNavigateCustomer}
+          />
+        ) : currentPage === "category" ? (
+          <CategoryProductPage
+            category={selectedCategory}
+            subCategory={selectedSubCategory}
+            onSelectCategory={handleSelectCategory}
+            onNavigateHome={handleNavigateHome}
+            onQuickView={(product) => setQuickViewProduct(product)}
+            onOpenSupport={() => setIsSupportDrawerOpen(true)}
+          />
+        ) : (
+          <SinglePageWholesale
+            searchQuery={searchQuery}
+            activeCategory={activeCategory}
+            onSelectCategory={handleSelectCategory}
+            onQuickView={(product) => setQuickViewProduct(product)}
           />
         )}
-        {currentPage === "catalogue" && (
-          <Catalogue
-            onNavigate={navigate}
-            onViewProduct={handleViewProduct}
-            initialQuery={activeFilterQuery}
-            initialCategory={activeCategory}
-            onCategoryChange={(cat) => setActiveCategory(cat)}
-            restoredState={restoredState}
-          />
-        )}
-        {currentPage === "product" && (
-          <ProductDetail
-            key={`${selectedProductId}-${brandSpotlightData?.variantName || "default"}`}
-            productId={selectedProductId}
-            onNavigate={navigate}
-            onViewProduct={handleViewProduct}
-            onBack={handleBack}
-            brandSpotlight={brandSpotlightData}
-            restoredState={restoredState}
-          />
-        )}
-        {currentPage === "cart" && (
-          <Cart
-            onNavigate={navigate}
-            onViewProduct={handleViewProduct}
-            onOpenPincodeModal={() => setIsPincodeModalOpen(true)}
-          />
-        )}
-        {currentPage === "login" && <Login onNavigate={navigate} />}
-        {currentPage === "signup" && <SignUp onNavigate={navigate} />}
-        {currentPage === "wishlist" && (
-          <Wishlist onNavigate={navigate} onViewProduct={handleViewProduct} />
-        )}
-        {currentPage === "brands-spotlight" && (
-          <BrandsSpotlight
-            onNavigate={navigate}
-            onViewProduct={handleViewProduct}
-            onBack={handleBack}
-          />
-        )}
-        {currentPage === "account" && <Account onNavigate={navigate} />}
-      </div>
+      </main>
 
-      {/* Global Modals & Notifications */}
-      <PincodeModal
-        isOpen={isPincodeModalOpen}
-        onClose={() => setIsPincodeModalOpen(false)}
+      {/* Wholesale Slide-over Cart Drawer with GSTIN Verification */}
+      <WholesaleCartDrawer
+        isOpen={isCartDrawerOpen}
+        onClose={() => setIsCartDrawerOpen(false)}
+        onCheckoutSuccess={handleCheckoutSuccess}
       />
 
-      <OrderSuccessModal onNavigateHome={handleLogoClick} />
+      {/* Saved / Wishlist Slide-over Drawer */}
+      <WholesaleWishlistDrawer
+        isOpen={isWishlistDrawerOpen}
+        onClose={() => setIsWishlistDrawerOpen(false)}
+        onQuickView={(product) => setQuickViewProduct(product)}
+      />
 
+      {/* Creative Left Slide-Over Wholesale Support & Expert Drawer */}
+      <WholesaleSupportDrawer
+        isOpen={isSupportDrawerOpen}
+        onClose={() => setIsSupportDrawerOpen(false)}
+        onOpenCart={() => {
+          setIsSupportDrawerOpen(false);
+          setIsCartDrawerOpen(true);
+        }}
+      />
+
+      {/* B2B Wholesale Specs & Carton Logistics Quick View Modal */}
+      <WholesaleQuickViewModal
+        product={quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+      />
+
+      {/* Wholesale Account & GSTIN Business Login Modal */}
+      <WholesaleAccountModal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
+      />
+
+      {/* Become a Mandi Vendor Modal */}
+      <BecomeVendorModal
+        isOpen={isBecomeVendorModalOpen}
+        onClose={() => setIsBecomeVendorModalOpen(false)}
+        onRegisterSuccess={() => {
+          setCurrentPage("vendor-dashboard");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
+
+      {/* B2B Order Success & Freight Dispatch Modal */}
+      <OrderSuccessModal onNavigateHome={handleNavigateHome} />
+
+      {/* Real-time Feedback Toast */}
       <Toast />
 
-      {/* Footer */}
-      <Footer onNavigate={navigate} onLogoClick={handleLogoClick} />
+      {/* Comprehensive Wholesale Footer */}
+      <Footer
+        onLogoClick={handleNavigateHome}
+        onNavigateCustomer={handleNavigateCustomer}
+        onNavigateVendor={handleNavigateVendor}
+        onNavigateAdmin={handleNavigateAdmin}
+        onOpenBecomeVendor={() => setIsBecomeVendorModalOpen(true)}
+        onScrollToSection={(sectionId) => {
+          if (currentPage !== "home") {
+            setCurrentPage("home");
+            setTimeout(() => scrollToSection(sectionId), 100);
+          } else {
+            scrollToSection(sectionId);
+          }
+        }}
+      />
     </div>
   );
 }
@@ -233,7 +249,7 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <SwiftMartApp />
+        <SwiftMartWholesaleApp />
       </CartProvider>
     </AuthProvider>
   );

@@ -5,41 +5,41 @@ const CartContext = createContext();
 
 const INITIAL_CART = [
   {
-    id: "fortune-oil",
-    name: "Fortune Sunlite Refined Sunflower Oil",
-    pack: "Cooking Essentials • 1L Pouch",
-    price: 118,
-    originalPrice: 160,
-    discount: "26% OFF",
+    id: "surf-matic-25kg",
+    name: "Surf Excel Matic Detergent Powder (25 kg Master Sack)",
+    pack: "Industrial Sack • 25 kg Net Wt",
+    price: 3375,
+    originalPrice: 5500,
+    discount: "39% OFF",
     qty: 1,
-    image: "/images/oil-1.jpg",
+    image: "/images/surfexcel-1.jpg",
   },
   {
-    id: "atta-5kg",
-    name: "Aashirvaad Sharbati Whole Wheat Atta",
-    pack: "5 kg Value Bag",
-    price: 265,
-    originalPrice: 320,
-    discount: "17% OFF",
-    qty: 1,
-    image: "/images/atta-1.jpg",
-  },
-  {
-    id: "boat-141-anc",
-    name: "boAt Airdopes 141 ANC True Wireless",
-    pack: "Electronics • Gunmetal Black",
-    price: 1299,
-    originalPrice: 4990,
-    discount: "74% OFF",
+    id: "boat-anc-carton-20",
+    name: "boAt Airdopes 141 ANC Earbuds (Retail Display Box of 20)",
+    pack: "Master Carton • 20 Units",
+    price: 16980,
+    originalPrice: 99800,
+    discount: "83% OFF",
     qty: 1,
     image: "/images/boat-1.jpg",
+  },
+  {
+    id: "vacuum-flask-24pcs",
+    name: "Stainless Steel Thermal Vacuum Flask Set (Box of 24 Pcs)",
+    pack: "Retail Gift Crate • 24 Sets with 3 Cups",
+    price: 4680,
+    originalPrice: 14376,
+    discount: "67% OFF",
+    qty: 1,
+    image: "/images/deal-flask.jpg",
   },
 ];
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState(() => {
     try {
-      const saved = localStorage.getItem("swiftmart_cart_v2");
+      const saved = localStorage.getItem("swiftmart_wholesale_cart_v3");
       return saved ? JSON.parse(saved) : INITIAL_CART;
     } catch {
       return INITIAL_CART;
@@ -48,12 +48,12 @@ export function CartProvider({ children }) {
 
   const [wishlist, setWishlist] = useState(() => {
     try {
-      const saved = localStorage.getItem("swiftmart_wishlist_v2");
+      const saved = localStorage.getItem("swiftmart_wholesale_wishlist_v3");
       return saved
         ? JSON.parse(saved)
-        : ["boat-141-anc", "fortune-oil", "sony-wh1000xm5"];
+        : ["boat-anc-carton-20", "surf-matic-25kg", "gan-charger-20pcs"];
     } catch {
-      return ["boat-141-anc", "fortune-oil", "sony-wh1000xm5"];
+      return ["boat-anc-carton-20", "surf-matic-25kg", "gan-charger-20pcs"];
     }
   });
 
@@ -303,6 +303,7 @@ export function CartProvider({ children }) {
         isOrderSuccessOpen,
         setIsOrderSuccessOpen,
         lastOrderDetails,
+        setLastOrderDetails,
         checkoutOrder,
       }}
     >

@@ -1,363 +1,919 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { MEGA_MENU_CATEGORIES } from "../data/wholesaleData";
+
+const TYPEWRITER_SUGGESTIONS = [
+  "Search For Wholesale Daily Necessities, Electronic Gadgets, Bulk Lots...",
+  "Search 'Basmati Rice 25kg Master Bag'...",
+  "Search 'TWS Wireless Earbuds Bulk Lot (50 Pcs)'...",
+  "Search 'Cold Pressed Mustard Oil 15L Tin'...",
+  "Search 'Fast Charging Cable Packs (100 Pcs)'...",
+  "Search 'Stainless Steel Cookware Sets (10 Pcs)'...",
+  "Search 'Wireless Power Banks 20000mAh Carton'...",
+  "Search 'Direct Factory Mandi Wholesale Deals'...",
+];
 
 export default function Header({
-  currentPage,
-  onNavigate,
-  onLogoClick,
   searchQuery,
   setSearchQuery,
   onSearchSubmit,
+  onOpenCart,
+  onOpenWishlist,
+  onOpenAccount,
+  onOpenSupport,
+  onSelectCategory,
+  onScrollToSection,
+  onLogoClick,
+  onNavigateCustomer,
+  onNavigateVendor,
+  onOpenBecomeVendor,
+  onNavigateAdmin,
 }) {
-  const { itemCount, showToast, wishlistCount } = useCart();
-  const { user, isLoggedIn, logout } = useAuth();
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const { itemCount, grandTotal, wishlist, showToast } = useCart();
+  const { user, toggleVendorStatus } = useAuth();
+  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
+  const [activeMegaCat, setActiveMegaCat] = useState(MEGA_MENU_CATEGORIES[0]);
+  const megaMenuRef = useRef(null);
+
+  // Account dropdown state & click-outside handling
+  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
+  const accountDropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        accountDropdownRef.current &&
+        !accountDropdownRef.current.contains(event.target)
+      ) {
+        setIsAccountDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Typewriter animation state for search bar
+  const [suggestionIndex, setSuggestionIndex] = useState(0);
+  const [displayText, setDisplayText] = useState(TYPEWRITER_SUGGESTIONS[0]);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (searchQuery) return; // Pause typewriter if user is typing manually
+
+    const currentPhrase = TYPEWRITER_SUGGESTIONS[suggestionIndex];
+    let timer;
+
+    if (!isDeleting) {
+      if (displayText.length < currentPhrase.length) {
+        timer = setTimeout(() => {
+          setDisplayText(currentPhrase.slice(0, displayText.length + 1));
+        }, 50); // Natural typing speed
+      } else {
+        timer = setTimeout(() => {
+          setIsDeleting(true);
+        }, 2200); // Pause to read
+      }
+    } else {
+      if (displayText.length > 0) {
+        timer = setTimeout(() => {
+          setDisplayText(currentPhrase.slice(0, displayText.length - 1));
+        }, 25); // Faster backspace speed
+      } else {
+        setIsDeleting(false);
+        setSuggestionIndex((prev) => (prev + 1) % TYPEWRITER_SUGGESTIONS.length);
+      }
+    }
+
+    return () => clearTimeout(timer);
+  }, [displayText, isDeleting, suggestionIndex, searchQuery]);
+
+  // Close mega menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (megaMenuRef.current && !megaMenuRef.current.contains(event.target)) {
+        setIsMegaMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearchKeyPress = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (!searchQuery.trim()) {
-        showToast("Please type something to search...", "error");
-        return;
-      }
       onSearchSubmit(searchQuery);
     }
   };
 
-  const handleSearchButtonClick = () => {
-    if (!searchQuery.trim()) {
-      showToast("Please type something to search...", "error");
-      return;
-    }
-    onSearchSubmit(searchQuery);
-  };
-
-  const handleBrandClick = () => {
-    if (onLogoClick) {
-      onLogoClick();
-    } else {
-      onNavigate("home");
+  const handleCategoryClick = (catId, subCat = "all") => {
+    setIsMegaMenuOpen(false);
+    if (onSelectCategory) {
+      onSelectCategory(catId, subCat);
     }
   };
 
   return (
-    <>
-      <header className="fixed top-0 w-full z-40 glass-header transition-all duration-300">
-        <div className="flex flex-col w-full">
-          {/* Main Glassmorphic Header Bar */}
-          <div className="px-3 sm:px-4 md:px-margin py-2.5">
-            <div className="max-w-[1480px] mx-auto flex items-center gap-2 sm:gap-3 md:gap-6 justify-between">
-              {/* Apple-Style Minimalist Brand Monogram */}
-              <div
-                onClick={handleBrandClick}
-                className="flex items-center gap-2 sm:gap-3 shrink-0 cursor-pointer select-none group"
-              >
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-neutral-950 flex items-center justify-center text-white shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-200">
-                  <span className="material-symbols-outlined text-[18px] sm:text-[20px] text-white">
-                    bolt
-                  </span>
-                </div>
-                <div className="flex flex-col leading-tight">
-                  <span className="text-base sm:text-lg font-black text-neutral-950 tracking-tight flex items-center gap-1">
-                    SwiftMart
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  </span>
-                  <span className="text-[9px] sm:text-[10px] text-neutral-400 tracking-wider uppercase font-semibold -mt-0.5">
-                    15-Min Express
-                  </span>
-                </div>
-              </div>
+    <header className="sticky top-0 z-50 w-full shadow-md bg-white">
+      {/* 1. TOP ANNOUNCEMENT & UTILITY TICKER (Matching Reference Image 1 with Continuous Marquee) */}
+      <div className="bg-neutral-950 text-white text-[11px] py-1.5 px-3 sm:px-4 md:px-margin border-b border-neutral-800 overflow-hidden">
+        <div className="max-w-[1480px] mx-auto flex items-center justify-between gap-3 sm:gap-4">
+          {/* Left Action: Fixed Help & Support (Sleek Compact Pill Button matching Play Store & App Store) */}
+          <div className="flex items-center shrink-0 z-20 bg-neutral-950 pr-2">
+            <button
+              onClick={() => (onOpenSupport ? onOpenSupport() : onScrollToSection("wholesale-faq"))}
+              className="group relative flex items-center gap-1.5 bg-neutral-900 hover:bg-neutral-800 text-white px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border border-neutral-700/80 hover:border-amber-400/80 shadow-xs hover:shadow-[0_0_14px_rgba(251,191,36,0.35)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer overflow-hidden"
+              title="SwiftMart Wholesale Help & Support"
+            >
+              {/* Subtle diagonal shine sweep animation */}
+              <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[250%] transition-transform duration-700 pointer-events-none" />
 
-              {/* Apple-Style Navigation Links: Home & Products */}
-              <div className="hidden md:flex items-center gap-1 glass-pill p-1 rounded-full border border-black/[0.04]">
-                <button
-                  onClick={handleBrandClick}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer active:scale-95 flex items-center gap-1.5 ${
-                    currentPage === "home"
-                      ? "bg-neutral-950 text-white shadow-xs"
-                      : "text-neutral-600 hover:text-neutral-950 hover:bg-black/[0.04]"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[16px]">
-                    home
-                  </span>
-                  <span>Home</span>
-                </button>
-                <button
-                  onClick={() => onNavigate("catalogue")}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer active:scale-95 flex items-center gap-1.5 ${
-                    currentPage === "catalogue"
-                      ? "bg-neutral-950 text-white shadow-xs"
-                      : "text-neutral-600 hover:text-neutral-950 hover:bg-black/[0.04]"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[16px]">
-                    grid_view
-                  </span>
-                  <span>Products</span>
-                </button>
-              </div>
+              {/* Attractive Customer Support Icon with Amber Glow & Micro-animation */}
+              <span className="material-symbols-outlined text-[16px] sm:text-[18px] text-amber-400 group-hover:text-amber-300 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)] shrink-0 select-none">
+                support_agent
+              </span>
 
-              {/* Apple-Style Frosted Capsule Search Bar */}
-              <div className="flex-1 min-w-0 max-w-xl flex items-center bg-white/75 hover:bg-white focus-within:bg-white rounded-full border border-black/[0.06] focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/[0.08] transition-all duration-300 pl-3 sm:pl-4 pr-1 sm:pr-1.5 py-1 shadow-xs backdrop-blur-md">
-                <span className="material-symbols-outlined text-neutral-400 text-[16px] sm:text-[18px] mr-1.5 sm:mr-2 shrink-0">
-                  search
+              {/* Sleek Bold Font */}
+              <span className="font-heading font-bold text-[11px] sm:text-xs tracking-tight text-white group-hover:text-amber-300 transition-colors whitespace-nowrap">
+                Help &amp; Support
+              </span>
+            </button>
+          </div>
+
+          {/* Continuous Left-to-Right Scrolling Marquee Ticker */}
+          <div className="relative overflow-hidden flex-1 mx-1 sm:mx-3 group">
+            {/* Subtle Gradient Fade Masks on edges */}
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-neutral-950 to-transparent z-10" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-neutral-950 to-transparent z-10" />
+
+            <div className="flex animate-marquee-ltr gap-6 items-center whitespace-nowrap cursor-default">
+              {/* Marquee Track 1 */}
+              <div className="flex items-center gap-6 shrink-0 font-medium">
+                <span className="text-amber-300 font-bold">
+                  at wholesale price — Sale 365 Days
                 </span>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={handleSearchKeyPress}
-                  placeholder="Search products, boAt earbuds..."
-                  className="w-full min-w-0 text-neutral-900 placeholder:text-neutral-400 text-xs sm:text-sm font-medium bg-transparent focus:outline-none truncate"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                    }}
-                    className="p-1 text-neutral-400 hover:text-neutral-700 mr-1 active:scale-90 cursor-pointer shrink-0"
-                  >
-                    <span className="material-symbols-outlined text-[15px]">
-                      close
-                    </span>
-                  </button>
-                )}
-                <button
-                  onClick={handleSearchButtonClick}
-                  className="bg-neutral-950 hover:bg-neutral-800 active:bg-black text-white px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs flex items-center gap-1 shrink-0 active:scale-95 cursor-pointer"
-                >
-                  <span className="hidden sm:inline">Search</span>
-                  <span className="material-symbols-outlined text-[15px]">
-                    arrow_forward
-                  </span>
-                </button>
+                <span className="text-neutral-600">•</span>
+                <span className="text-neutral-200">
+                  SALE 365 DAYS — Unbeatable prices, every day
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-emerald-400 font-semibold">
+                  Free Shipping — Above ₹599
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-red-400 font-bold">
+                  JOB FRAUD ALERT: Never pay money for job offers
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-blue-300 font-semibold">
+                  100% GST Tax Invoices Available
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-amber-400 font-semibold">
+                  No Minimum Order Quantity (No MOQ)
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-emerald-300 font-medium">
+                  Direct Factory Mandi Rates
+                </span>
+                <span className="text-neutral-600">•</span>
               </div>
 
-              {/* Right Action Buttons */}
-              <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 shrink-0">
-                {/* Apple-Style Wishlist Button */}
-                <button
-                  onClick={() => onNavigate("wishlist")}
-                  className={`hidden sm:flex w-10 h-10 rounded-full items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                    currentPage === "wishlist"
-                      ? "bg-neutral-950 text-white shadow-sm ring-1 ring-black/10"
-                      : "bg-neutral-100/80 hover:bg-neutral-200/80 text-neutral-800 border border-black/[0.04]"
-                  }`}
-                  title="Wishlist"
-                  aria-label="Wishlist"
-                >
-                  <span
-                    className={`material-symbols-outlined text-[20px] ${currentPage === "wishlist" ? "text-white fill" : "text-neutral-800"}`}
-                  >
-                    favorite
-                  </span>
-                </button>
-
-                {/* Apple-Style Shopping Bag Button */}
-                <button
-                  onClick={() => onNavigate("cart")}
-                  className={`relative w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                    currentPage === "cart"
-                      ? "bg-neutral-950 text-white shadow-sm ring-1 ring-black/10"
-                      : "bg-neutral-100/80 hover:bg-neutral-200/80 text-neutral-900 border border-black/[0.04]"
-                  }`}
-                  title="Shopping Bag"
-                  aria-label="Shopping Bag"
-                >
-                  <span
-                    className={`material-symbols-outlined text-[18px] sm:text-[20px] ${currentPage === "cart" ? "text-white" : "text-neutral-800"}`}
-                  >
-                    shopping_bag
-                  </span>
-                  {itemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-neutral-950 text-white font-bold text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
-                      {itemCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* User Profile / Sign In */}
-                <div className="hidden sm:block relative">
-                  {isLoggedIn ? (
-                    <div>
-                      <button
-                        onClick={() => setShowUserDropdown(!showUserDropdown)}
-                        className="w-10 h-10 rounded-full bg-neutral-100/80 hover:bg-neutral-200/80 border border-black/[0.04] flex items-center justify-center transition-all cursor-pointer active:scale-95"
-                        title={user.name}
-                        aria-label="User Account"
-                      >
-                        <div className="w-7 h-7 rounded-full bg-neutral-950 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                          {user.name.charAt(0)}
-                        </div>
-                      </button>
-
-                      {showUserDropdown && (
-                        <div className="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-soft-xl border border-black/[0.08] py-2 z-50 animate-fade-in">
-                          <div className="px-4 py-2.5 border-b border-neutral-100">
-                            <p className="font-bold text-neutral-900 text-sm">
-                              {user.name}
-                            </p>
-                            <p className="text-xs text-neutral-500 truncate">
-                              {user.phone}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => {
-                              onNavigate("account");
-                              setShowUserDropdown(false);
-                            }}
-                            className="w-full px-4 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-100/80 flex items-center gap-2 transition-colors cursor-pointer"
-                          >
-                            <span className="material-symbols-outlined text-[17px] text-primary">
-                              account_circle
-                            </span>
-                            My Account Profile
-                          </button>
-                          <button
-                            onClick={() => {
-                              onNavigate("wishlist");
-                              setShowUserDropdown(false);
-                            }}
-                            className="w-full px-4 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-100/80 flex items-center gap-2 transition-colors cursor-pointer"
-                          >
-                            <span className="material-symbols-outlined text-[17px] text-rose-500">
-                              favorite
-                            </span>
-                            My Wishlist
-                          </button>
-                          <button
-                            onClick={() => {
-                              onNavigate("cart");
-                              setShowUserDropdown(false);
-                            }}
-                            className="w-full px-4 py-2 text-left text-xs font-semibold text-neutral-700 hover:bg-neutral-100/80 flex items-center gap-2 transition-colors cursor-pointer"
-                          >
-                            <span className="material-symbols-outlined text-[17px] text-neutral-700">
-                              receipt_long
-                            </span>
-                            My Orders &amp; Invoices
-                          </button>
-                          <button
-                            onClick={() => {
-                              logout();
-                              setShowUserDropdown(false);
-                              showToast("Signed out successfully");
-                            }}
-                            className="w-full px-4 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors cursor-pointer"
-                          >
-                            <span className="material-symbols-outlined text-[17px]">
-                              logout
-                            </span>
-                            Sign Out
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => onNavigate("login")}
-                      className="w-10 h-10 rounded-full bg-neutral-100/80 hover:bg-neutral-200/80 border border-black/[0.04] flex items-center justify-center text-neutral-800 transition-all cursor-pointer active:scale-95"
-                      title="Sign In"
-                      aria-label="Sign In"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">
-                        person
-                      </span>
-                    </button>
-                  )}
-                </div>
+              {/* Marquee Track 2 (Duplicate for seamless continuous loop) */}
+              <div className="flex items-center gap-6 shrink-0 font-medium" aria-hidden="true">
+                <span className="text-amber-300 font-bold">
+                  at wholesale price — Sale 365 Days
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-neutral-200">
+                  SALE 365 DAYS — Unbeatable prices, every day
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-emerald-400 font-semibold">
+                  Free Shipping — Above ₹599
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-red-400 font-bold">
+                  JOB FRAUD ALERT: Never pay money for job offers
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-blue-300 font-semibold">
+                  100% GST Tax Invoices Available
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-amber-400 font-semibold">
+                  No Minimum Order Quantity (No MOQ)
+                </span>
+                <span className="text-neutral-600">•</span>
+                <span className="text-emerald-300 font-medium">
+                  Direct Factory Mandi Rates
+                </span>
+                <span className="text-neutral-600">•</span>
               </div>
             </div>
           </div>
-        </div>
-      </header>
 
-      {/* Floating Bottom Navigation Bar for Mobile */}
-      {currentPage !== "product" && (
-        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-2xl border-t border-black/[0.06] px-3 py-2 flex items-center justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-          <button
-            onClick={handleBrandClick}
-            className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-colors ${
-              currentPage === "home"
-                ? "text-neutral-950"
-                : "text-neutral-400 hover:text-neutral-900"
-            }`}
-          >
-            <span className="material-symbols-outlined text-[20px]">home</span>
-            <span>Home</span>
-          </button>
-
-          <button
-            onClick={() => {
-              onNavigate("catalogue");
-            }}
-            className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-colors ${
-              currentPage === "catalogue"
-                ? "text-neutral-950"
-                : "text-neutral-400 hover:text-neutral-900"
-            }`}
-          >
-            <span className="material-symbols-outlined text-[20px]">
-              grid_view
-            </span>
-            <span>Catalogue</span>
-          </button>
-
-          <button
-            onClick={() => onNavigate("wishlist")}
-            className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-colors relative ${
-              currentPage === "wishlist"
-                ? "text-rose-600 font-black"
-                : "text-neutral-400 hover:text-neutral-900"
-            }`}
-          >
-            <span
-              className={`material-symbols-outlined text-[20px] ${currentPage === "wishlist" ? "text-rose-600 fill" : ""}`}
+          {/* Right App Store Badges (Matching Reference Image 1 with Standard SVG Icons, Animation & Bold Font) */}
+          <div className="hidden md:flex items-center gap-2.5 shrink-0 z-20 bg-neutral-950 pl-2">
+            {/* Google Play Button */}
+            <button
+              onClick={() => showToast("Opening SwiftMart on Google Play Store... 📲")}
+              className="group relative flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border border-neutral-700/80 hover:border-[#00C3FF]/80 shadow-xs hover:shadow-[0_0_14px_rgba(0,195,255,0.35)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer overflow-hidden"
+              title="Get SwiftMart Wholesale App on Google Play"
             >
-              favorite
-            </span>
-            {wishlistCount > 0 && (
-              <span className="absolute -top-1 right-2 bg-rose-500 text-white font-bold text-[9px] rounded-full h-3.5 min-w-[0.9rem] px-0.5 flex items-center justify-center">
-                {wishlistCount}
-              </span>
-            )}
-            <span>Wishlist</span>
-          </button>
+              {/* Subtle diagonal shine sweep animation */}
+              <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[250%] transition-transform duration-700 pointer-events-none" />
 
-          <button
-            onClick={() => onNavigate("cart")}
-            className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-colors relative ${
-              currentPage === "cart"
-                ? "text-neutral-950"
-                : "text-neutral-400 hover:text-neutral-900"
-            }`}
-          >
-            <span className="material-symbols-outlined text-[20px]">
-              shopping_bag
-            </span>
-            {itemCount > 0 && (
-              <span className="absolute -top-1 right-2 bg-neutral-950 text-white font-bold text-[9px] rounded-full h-3.5 min-w-[0.9rem] px-0.5 flex items-center justify-center">
-                {itemCount}
-              </span>
-            )}
-            <span>Bag</span>
-          </button>
+              {/* Exact Modern Google Play Store Multi-Color Triangle Icon (Matching User Reference) */}
+              <svg
+                viewBox="0 0 28.99 31.99"
+                className="w-[15px] h-[15px] sm:w-[16px] sm:h-[16px] shrink-0 group-hover:rotate-6 transition-transform duration-300 drop-shadow-sm"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Left: Vibrant Cyan / Sky Blue */}
+                <path
+                  d="M.12 2.66a3.57 3.57 0 0 0-.12.92v24.84a3.57 3.57 0 0 0 .12.92L14 15.64Z"
+                  fill="#00C3FF"
+                />
+                {/* Top: Vibrant Green */}
+                <path
+                  d="m13.64 16 6.94-6.85L5.5.51A3.73 3.73 0 0 0 3.63 0 3.64 3.64 0 0 0 .12 2.65Z"
+                  fill="#00E676"
+                />
+                {/* Bottom: Vibrant Coral Red */}
+                <path
+                  d="M13.54 15.28.12 29.34a3.66 3.66 0 0 0 5.33 2.16l15.1-8.6Z"
+                  fill="#FF334C"
+                />
+                {/* Right Tip: Golden Yellow */}
+                <path
+                  d="m27.11 12.89-6.53-3.74-7.35 6.45 7.38 7.28 6.48-3.7a3.54 3.54 0 0 0 1.5-4.79 3.62 3.62 0 0 0-1.5-1.5z"
+                  fill="#FFC107"
+                />
+              </svg>
 
-          <button
-            onClick={() => onNavigate(isLoggedIn ? "account" : "login")}
-            className={`flex flex-col items-center gap-0.5 text-xs font-bold transition-colors ${
-              currentPage === "account" || currentPage === "login"
-                ? "text-neutral-950 font-black"
-                : "text-neutral-400 hover:text-neutral-900"
-            }`}
-          >
-            <span className="material-symbols-outlined text-[20px]">person</span>
-            <span>{isLoggedIn ? "Account" : "Sign In"}</span>
-          </button>
+              <span className="font-heading font-bold text-[11px] sm:text-xs tracking-tight text-white group-hover:text-[#00C3FF] transition-colors whitespace-nowrap">
+                Google Play
+              </span>
+            </button>
+
+            {/* Apple App Store Button */}
+            <button
+              onClick={() => showToast("Opening SwiftMart on Apple App Store... 🍏")}
+              className="group relative flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border border-neutral-700/80 hover:border-white/80 shadow-xs hover:shadow-[0_0_14px_rgba(255,255,255,0.3)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer overflow-hidden"
+              title="Download SwiftMart Wholesale App on Apple App Store"
+            >
+              {/* Subtle diagonal shine sweep animation */}
+              <span className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/15 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-[250%] transition-transform duration-700 pointer-events-none" />
+
+              {/* Standard Official Apple Logo Icon */}
+              <svg
+                viewBox="0 0 24 24"
+                className="w-[15px] h-[15px] sm:w-[16px] sm:h-[16px] shrink-0 fill-current text-white group-hover:scale-110 transition-transform duration-300 drop-shadow-sm"
+              >
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.76 1.05-1.81.93-2.87-.91.04-2.01.61-2.66 1.37-.58.67-1.08 1.74-.95 2.78 1.02.08 2.06-.52 2.68-1.28z" />
+              </svg>
+
+              <span className="font-heading font-bold text-[11px] sm:text-xs tracking-tight text-white group-hover:text-neutral-100 transition-colors whitespace-nowrap">
+                App Store
+              </span>
+            </button>
+          </div>
         </div>
-      )}
-    </>
+      </div>
+
+      {/* 2. MAIN HEADER ROW (Matching Reference Images 1 & 2) */}
+      <div className="px-3 sm:px-4 md:px-margin py-2.5 sm:py-3 bg-white border-b border-neutral-200">
+        <div className="max-w-[1480px] mx-auto flex items-center justify-between gap-3 sm:gap-6">
+          {/* Brand Logo: SwiftMart WHOLESALE (with Interactive Delivery Story Animation on Cursor Hover) */}
+          <div
+            onClick={() => (onLogoClick ? onLogoClick() : onScrollToSection("top"))}
+            className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0 group"
+            title="SwiftMart Wholesale • B2B Direct"
+          >
+            {/* Animated Micro-Story Circular Badge (Shop -> Product -> Pack -> Delivery Bus -> Delivered) */}
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-primary flex items-center justify-center text-white shadow-md group-hover:shadow-[0_0_20px_rgba(0,86,195,0.45)] group-hover:scale-105 transition-all duration-300 overflow-hidden border border-blue-400/30">
+              {/* Step 1: Default Storefront Icon (dives downward on hover) */}
+              <span className="material-symbols-outlined text-[23px] sm:text-[25px] text-white animate-logo-shop shrink-0 select-none">
+                storefront
+              </span>
+
+              {/* Step 2: Product comes from top side */}
+              <span className="material-symbols-outlined text-[23px] sm:text-[25px] text-amber-300 absolute inset-0 m-auto flex items-center justify-center pointer-events-none opacity-0 select-none animate-logo-product">
+                shopping_bag
+              </span>
+
+              {/* Step 3: It will pack into master carton */}
+              <span className="material-symbols-outlined text-[23px] sm:text-[25px] text-amber-400 absolute inset-0 m-auto flex items-center justify-center pointer-events-none opacity-0 select-none animate-logo-pack">
+                inventory_2
+              </span>
+
+              {/* Step 4: Delivery bus / cargo transport comes across */}
+              <span className="material-symbols-outlined text-[23px] sm:text-[25px] text-white absolute inset-0 m-auto flex items-center justify-center pointer-events-none opacity-0 select-none animate-logo-bus">
+                local_shipping
+              </span>
+
+              {/* Step 5: Product delivery has been done (celebratory checkmark) */}
+              <span className="material-symbols-outlined text-[23px] sm:text-[25px] text-emerald-400 fill absolute inset-0 m-auto flex items-center justify-center pointer-events-none opacity-0 select-none animate-logo-done">
+                check_circle
+              </span>
+            </div>
+
+            {/* Typography with Increased Weight & Heading Font */}
+            <div className="flex flex-col leading-none">
+              <div className="flex items-center gap-1">
+                <span className="text-xl sm:text-[26px] font-black text-neutral-950 tracking-tight font-heading group-hover:text-primary transition-colors">
+                  SwiftMart
+                </span>
+                <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0"></span>
+              </div>
+              <div className="flex items-center gap-1.5 mt-1 font-heading">
+                <span className="bg-red-600 text-white font-heading font-black text-[10px] sm:text-[11px] uppercase tracking-widest px-2 py-0.5 rounded-xs shadow-xs">
+                  WHOLESALE
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-neutral-700 font-heading font-black uppercase tracking-wider hidden sm:inline">
+                  • B2B DIRECT
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Prominent Search Bar (Matching Reference Images with Pill Border & Typewriter Animation) */}
+          <div className="flex-1 max-w-2xl min-w-0">
+            <div className="relative flex items-center w-full rounded-full border-2 border-red-600 bg-white overflow-hidden shadow-xs hover:shadow-md focus-within:shadow-[0_0_16px_rgba(220,38,38,0.22)] focus-within:border-red-600 transition-all">
+              {/* Typewriter Animated Placeholder Overlay (Visible when search query is empty) */}
+              {!searchQuery && (
+                <div
+                  className="absolute left-4 sm:left-5 right-28 pointer-events-none flex items-center text-xs sm:text-sm font-sans font-medium text-neutral-400 select-none overflow-hidden whitespace-nowrap"
+                  aria-hidden="true"
+                >
+                  <span className="truncate">{displayText}</span>
+                  <span className="inline-block w-[1.5px] h-3.5 sm:h-4 bg-red-600 ml-0.5 animate-pulse shrink-0" />
+                </div>
+              )}
+
+              {/* Native Input Field with proper font and weight */}
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearchKeyPress}
+                className="w-full pl-4 sm:pl-5 pr-10 py-2 sm:py-2.5 text-xs sm:text-sm font-sans font-semibold text-neutral-900 focus:outline-none bg-transparent min-w-0 z-10"
+                aria-label="Search wholesale catalog"
+              />
+
+              {/* Clear Search Button */}
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="px-2 text-neutral-400 hover:text-neutral-700 cursor-pointer z-20 shrink-0"
+                  title="Clear search"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    close
+                  </span>
+                </button>
+              )}
+
+              {/* Red Solid Search Button with Bold Typography & Crisp SVG Icon */}
+              <button
+                onClick={() => onSearchSubmit(searchQuery)}
+                className="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white pl-4 pr-5 sm:pl-5 sm:pr-6 py-2 sm:py-2.5 font-heading font-extrabold text-xs sm:text-sm flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 z-20 shadow-xs"
+                title="Search wholesale catalog"
+              >
+                {/* Crisp Bold Magnifying Glass SVG Icon */}
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0 text-white"
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+                <span className="tracking-tight text-[13px] sm:text-sm">Search</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Right Utility Links (Matching Reference Image with Proper Weight, Bold Font & Crisp Proportions) */}
+          <div className="flex items-center gap-2 sm:gap-3.5 md:gap-5 shrink-0">
+            {/* 1. Account with Interactive Dropdown Menu */}
+            <div className="relative" ref={accountDropdownRef}>
+              <button
+                onClick={() => setIsAccountDropdownOpen((prev) => !prev)}
+                className="flex items-center gap-2 sm:gap-2.5 text-left hover:text-primary transition-colors cursor-pointer group p-0.5"
+                title="Your Wholesale Account & GSTIN Profile"
+                aria-expanded={isAccountDropdownOpen}
+              >
+                <div className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-full bg-neutral-100 group-hover:bg-primary/10 border border-neutral-200/80 flex items-center justify-center text-neutral-800 group-hover:text-primary transition-all duration-200 shadow-xs group-hover:shadow-sm shrink-0">
+                  {/* Crisp Bold Person SVG Icon */}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.1"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-[15px] h-[15px] sm:w-[16.5px] sm:h-[16.5px] text-neutral-800 group-hover:text-primary group-hover:scale-105 transition-all duration-200"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+                <div className="hidden sm:flex flex-col leading-tight text-left">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] sm:text-[10.5px] text-neutral-500 font-semibold font-sans tracking-tight">
+                      Hello, {user?.name?.split(" ")[0] || "Trader"}
+                    </span>
+                    {user?.isVendor && (
+                      <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[8.5px] font-black uppercase px-1 py-0.2 rounded leading-none">
+                        Vendor
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[13px] sm:text-[13.5px] font-black text-neutral-950 font-heading tracking-tight group-hover:text-primary transition-colors flex items-center gap-0.5">
+                    Account
+                    <span className="material-symbols-outlined text-[15px] text-neutral-400 group-hover:text-primary transition-transform">
+                      {isAccountDropdownOpen ? "expand_less" : "expand_more"}
+                    </span>
+                  </span>
+                </div>
+              </button>
+
+              {/* Account Dropdown Menu (Unified Customer + Vendor Workflow) */}
+              {isAccountDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-84 bg-white rounded-2xl shadow-2xl border border-neutral-200/90 py-3 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  {/* Business Card Header & Role Identity */}
+                  <div className="px-4 pb-3 border-b border-neutral-100">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0">
+                        {user?.name?.slice(0, 2).toUpperCase() || "AS"}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="font-heading font-black text-sm text-neutral-900 block truncate">
+                          {user?.name || "Avishkar Sharma"}
+                        </span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {user?.isVendor ? (
+                            <span className="bg-amber-100 text-amber-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/80 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                              Customer + Vendor
+                            </span>
+                          ) : (
+                            <span className="bg-blue-50 text-blue-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-blue-200">
+                              Customer Account
+                            </span>
+                          )}
+                          <span className="text-[10px] text-neutral-400 font-mono truncate">
+                            {user?.isVendor ? user.vendorDetails?.city : "B2B Buyer"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Interactive Role Switcher Pill for instant UX testing */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleVendorStatus();
+                        showToast(
+                          user?.isVendor
+                            ? "Switched to Customer-only view"
+                            : "Vendor permissions activated! Dual Customer + Vendor mode unlocked! 🏪"
+                        );
+                      }}
+                      className="mt-2.5 w-full flex items-center justify-between text-[11px] font-bold py-1.5 px-2.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition-colors border border-neutral-200/80 cursor-pointer"
+                      title="Click to toggle between Customer-only and Dual Customer+Vendor mode"
+                    >
+                      <span className="text-neutral-500">Simulate Account State:</span>
+                      <span className="flex items-center gap-1 font-mono text-primary text-[10.5px]">
+                        {user?.isVendor ? "Customer + Vendor ⚡" : "Customer (Default) 🛒"}
+                        <span className="material-symbols-outlined text-[13px]">swap_horiz</span>
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Navigation Links */}
+                  <div className="py-1.5 px-2">
+                    {/* SECTION 1: Customer Dashboard (Customer features are NEVER lost) */}
+                    <button
+                      onClick={() => {
+                        setIsAccountDropdownOpen(false);
+                        if (onNavigateCustomer) onNavigateCustomer();
+                      }}
+                      className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-neutral-50 flex items-center gap-3 transition-colors cursor-pointer group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-primary flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                        <span className="material-symbols-outlined text-[19px]">dashboard</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-heading font-bold text-xs sm:text-[13px] text-neutral-900 group-hover:text-primary transition-colors block leading-tight">
+                          Customer Dashboard
+                        </span>
+                        <span className="text-[11px] text-neutral-400 block truncate">
+                          Purchase History, Track Orders &amp; Wallet
+                        </span>
+                      </div>
+                      <span className="material-symbols-outlined text-[16px] text-neutral-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0">
+                        chevron_right
+                      </span>
+                    </button>
+
+                    {/* SECTION 2: VENDOR WORKFLOW (Conditional display based on user account state) */}
+                    {!user?.isVendor ? (
+                      /* If Customer has NOT become a Vendor yet: Display "Become a Vendor" Application CTA */
+                      <button
+                        onClick={() => {
+                          setIsAccountDropdownOpen(false);
+                          if (onOpenBecomeVendor) onOpenBecomeVendor();
+                        }}
+                        className="w-full text-left px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent hover:from-amber-500/25 border border-amber-300/60 my-1 flex items-center gap-3 transition-all cursor-pointer group shadow-xs"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs shrink-0">
+                          <span className="material-symbols-outlined text-[19px]">handshake</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-heading font-black text-xs sm:text-[13px] text-amber-950 block leading-tight">
+                              Become a Vendor
+                            </span>
+                            <span className="bg-red-600 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded">
+                              0% Fee
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-amber-800/80 block truncate">
+                            Sell Wholesale Direct to 45,000+ Buyers
+                          </span>
+                        </div>
+                        <span className="material-symbols-outlined text-[16px] text-amber-700 group-hover:translate-x-0.5 transition-all shrink-0">
+                          arrow_forward
+                        </span>
+                      </button>
+                    ) : (
+                      /* Once Activated: Display "Switch to Vendor Dashboard" prominently */
+                      <button
+                        onClick={() => {
+                          setIsAccountDropdownOpen(false);
+                          if (onNavigateVendor) onNavigateVendor();
+                        }}
+                        className="w-full text-left px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent hover:from-amber-500/25 border border-amber-400/80 my-1 flex items-center gap-3 transition-all cursor-pointer group shadow-xs"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs shrink-0">
+                          <span className="material-symbols-outlined text-[19px]">store</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-heading font-black text-xs sm:text-[13px] text-amber-950 block leading-tight">
+                              Switch to Vendor Dashboard
+                            </span>
+                            <span className="bg-emerald-600 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded">
+                              Active
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-amber-800/80 block truncate">
+                            Factory Lots, Stock, Orders &amp; Payouts
+                          </span>
+                        </div>
+                        <span className="material-symbols-outlined text-[16px] text-amber-700 group-hover:translate-x-0.5 transition-all shrink-0">
+                          arrow_forward
+                        </span>
+                      </button>
+                    )}
+
+                    {/* SECTION 3: Admin Dashboard Link (Master Control) */}
+                    <button
+                      onClick={() => {
+                        setIsAccountDropdownOpen(false);
+                        if (onNavigateAdmin) onNavigateAdmin();
+                      }}
+                      className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-red-50/80 flex items-center gap-3 transition-colors cursor-pointer group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0 border border-red-200">
+                        <span className="material-symbols-outlined text-[19px]">admin_panel_settings</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-heading font-black text-xs sm:text-[13px] text-neutral-900 group-hover:text-red-700 transition-colors block leading-tight">
+                            Admin Control Center
+                          </span>
+                          <span className="bg-neutral-900 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded">
+                            Master
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-neutral-400 block truncate">
+                          Platform Analytics, Orders &amp; Approvals
+                        </span>
+                      </div>
+                      <span className="material-symbols-outlined text-[16px] text-neutral-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0">
+                        chevron_right
+                      </span>
+                    </button>
+
+                    {/* SECTION 4: GSTIN & Tax Certificates Modal Link */}
+                    <button
+                      onClick={() => {
+                        setIsAccountDropdownOpen(false);
+                        onOpenAccount();
+                      }}
+                      className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-neutral-50 flex items-center gap-3 transition-colors cursor-pointer group"
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-neutral-100 text-neutral-700 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                        <span className="material-symbols-outlined text-[19px]">receipt_long</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-heading font-bold text-xs sm:text-[13px] text-neutral-900 group-hover:text-primary transition-colors block leading-tight">
+                          GSTIN Business Profile
+                        </span>
+                        <span className="text-[11px] text-neutral-400 block truncate">
+                          Manage Tax Invoicing &amp; Certificates
+                        </span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 2. Wishlist */}
+            <button
+              onClick={onOpenWishlist}
+              className="flex items-center gap-2 sm:gap-2.5 text-left hover:text-rose-600 transition-colors cursor-pointer group p-0.5"
+              title="Saved Bulk Wishlist Items"
+            >
+              <div className="relative w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-full bg-neutral-100 group-hover:bg-rose-50 border border-neutral-200/80 flex items-center justify-center text-neutral-800 group-hover:text-rose-600 transition-all duration-200 shadow-xs group-hover:shadow-sm shrink-0">
+                {/* Crisp Bold Heart SVG Icon */}
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.1"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-[15px] h-[15px] sm:w-[16.5px] sm:h-[16.5px] text-neutral-800 group-hover:text-rose-600 group-hover:fill-rose-500/10 group-hover:scale-105 transition-all duration-200"
+                >
+                  <path d="M19.5 13.572 12 21l-7.5-7.428A5 5 0 1 1 12 6.5a5 5 0 1 1 7.5 7.072Z" />
+                </svg>
+
+                {wishlist.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-red-600 text-white font-heading font-black text-[8.5px] min-w-[15px] h-[15px] px-0.5 rounded-full flex items-center justify-center shadow-xs border-[1.5px] border-white ring-1 ring-red-500/20 leading-none">
+                    {wishlist.length}
+                  </span>
+                )}
+              </div>
+              <div className="hidden sm:flex flex-col leading-tight text-left">
+                <span className="text-[10px] sm:text-[10.5px] text-neutral-500 font-semibold font-sans tracking-tight">
+                  Saved
+                </span>
+                <span className="text-[13px] sm:text-[13.5px] font-black text-neutral-950 font-heading tracking-tight group-hover:text-rose-600 transition-colors">
+                  Wishlist
+                </span>
+              </div>
+            </button>
+
+            {/* 3. Cart */}
+            <button
+              onClick={onOpenCart}
+              className="flex items-center gap-2 sm:gap-2.5 text-left hover:text-primary transition-colors cursor-pointer group p-0.5"
+              title="View Wholesale Cart & Bulk Tiers"
+            >
+              <div className="relative w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-full bg-neutral-100 group-hover:bg-primary/10 border border-neutral-200/80 flex items-center justify-center text-neutral-800 group-hover:text-primary transition-all duration-200 shadow-xs group-hover:shadow-sm shrink-0">
+                {/* Crisp Bold Shopping Cart SVG Icon */}
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.1"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-[15px] h-[15px] sm:w-[16.5px] sm:h-[16.5px] text-neutral-800 group-hover:text-primary group-hover:scale-105 transition-all duration-200"
+                >
+                  <circle cx="8" cy="21" r="1.5" fill="currentColor" stroke="none" />
+                  <circle cx="19" cy="21" r="1.5" fill="currentColor" stroke="none" />
+                  <path d="M2.5 3h3l2.4 11.2a1.8 1.8 0 0 0 1.8 1.4h9.6a1.8 1.8 0 0 0 1.8-1.4l1.5-7.7H6.2" />
+                </svg>
+
+                {itemCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 bg-red-600 text-white font-heading font-black text-[8.5px] min-w-[15px] h-[15px] px-0.5 rounded-full flex items-center justify-center shadow-xs border-[1.5px] border-white ring-1 ring-red-500/20 leading-none">
+                    {itemCount}
+                  </span>
+                )}
+              </div>
+              <div className="hidden sm:flex flex-col leading-tight text-left">
+                <span className="text-[10px] sm:text-[10.5px] text-neutral-700 font-bold font-sans tracking-tight">
+                  ₹{grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+                <span className="text-[13px] sm:text-[13.5px] font-black text-neutral-950 font-heading tracking-tight group-hover:text-primary transition-colors">
+                  Cart
+                </span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. SECONDARY HORIZONTAL NAVIGATION BAR */}
+      <div className="bg-[#111317] border-t border-b border-white/10 text-white relative shadow-inner">
+        <div className="max-w-[1480px] mx-auto px-3 sm:px-4 md:px-margin flex items-center justify-between py-1.5 gap-2.5 relative">
+          {/* Category Button & Dropdown Mega Menu (OUTSIDE overflow-x-auto to prevent clipping) */}
+          <div className="relative shrink-0 z-40" ref={megaMenuRef}>
+            <button
+              onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
+              className="bg-gradient-to-r from-[#851e2a] via-[#751722] to-[#60121b] hover:from-[#751722] hover:to-[#500f17] text-white font-heading font-bold text-[12.5px] px-3.5 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer shrink-0 shadow-xs border border-rose-400/25 active:scale-95 group whitespace-nowrap"
+              title="Browse Categories"
+            >
+              <span className="material-symbols-outlined text-[17px] text-amber-300 group-hover:rotate-12 transition-transform duration-200">
+                grid_view
+              </span>
+              <span className="tracking-tight">Category</span>
+              <span
+                className={`material-symbols-outlined text-[16px] text-white/80 transition-transform duration-200 ${
+                  isMegaMenuOpen ? "rotate-180" : ""
+                }`}
+              >
+                keyboard_arrow_down
+              </span>
+            </button>
+
+            {/* DETAILED DROPDOWN MEGA-MENU (Matching Reference Screenshot) */}
+            {isMegaMenuOpen && (
+              <div className="absolute top-full left-0 mt-2 w-[92vw] max-w-[960px] bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.35)] border border-neutral-200 text-neutral-900 z-[100] flex overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 h-[520px]">
+                {/* Left Column: 13 Categories Sidebar */}
+                <div className="w-64 sm:w-72 bg-[#fafafa] border-r border-neutral-200 p-2 flex flex-col gap-1 overflow-y-auto shrink-0 font-sans">
+                  {MEGA_MENU_CATEGORIES.map((cat) => {
+                    const isActive = activeMegaCat.id === cat.id;
+                    return (
+                      <div
+                        key={cat.id}
+                        onMouseEnter={() => setActiveMegaCat(cat)}
+                        onClick={() => {
+                          setActiveMegaCat(cat);
+                          handleCategoryClick(cat.id);
+                        }}
+                        className={`px-3 py-2.5 rounded-lg text-[13px] flex items-center justify-between transition-all duration-150 cursor-pointer ${
+                          isActive
+                            ? "bg-[#fff1f2] text-[#dc2626] font-semibold border border-red-200 shadow-2xs"
+                            : "text-neutral-800 hover:bg-neutral-100 font-medium"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className={`material-symbols-outlined text-[19px] shrink-0 ${
+                              isActive ? "text-[#dc2626]" : "text-neutral-700"
+                            }`}
+                          >
+                            {cat.icon}
+                          </span>
+                          <span className="truncate">{cat.name}</span>
+                        </div>
+                        <span
+                          className={`material-symbols-outlined text-[16px] shrink-0 ${
+                            isActive ? "text-[#dc2626]" : "text-neutral-400"
+                          }`}
+                        >
+                          chevron_right
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Right Pane: Category Collections (3 Clean Columns matching screenshot) */}
+                <div className="flex-1 p-7 sm:p-8 flex flex-col justify-between overflow-y-auto bg-white font-sans">
+                  <div>
+                    {/* Active Category Title & Collections count */}
+                    <div className="mb-6">
+                      <h3 className="text-xl font-heading font-black text-neutral-900 leading-tight">
+                        {activeMegaCat.name}
+                      </h3>
+                      <p className="text-xs text-neutral-400 font-sans mt-0.5">
+                        {activeMegaCat.count}
+                      </p>
+                    </div>
+
+                    {/* 3 Columns Subcategory List without heavy borders */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-2">
+                      {activeMegaCat.columns &&
+                        activeMegaCat.columns.map((col, colIdx) => (
+                          <div key={colIdx} className="flex flex-col gap-3">
+                            {col.map((item, itemIdx) => (
+                              <button
+                                key={itemIdx}
+                                onClick={() => handleCategoryClick(activeMegaCat.id, item)}
+                                className="text-left text-[13.5px] font-sans font-normal text-neutral-800 hover:text-[#dc2626] transition-colors py-0.5 cursor-pointer block truncate"
+                              >
+                                {item}
+                              </button>
+                            ))}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+
+                  {/* Bottom Action Link */}
+                  <div className="pt-6 mt-6 border-t border-neutral-150">
+                    <button
+                      onClick={() => handleCategoryClick(activeMegaCat.id)}
+                      className="text-[13.5px] font-bold text-neutral-900 hover:text-[#dc2626] flex items-center gap-1.5 transition-colors cursor-pointer group"
+                    >
+                      <span>View all of {activeMegaCat.name}</span>
+                      <span className="material-symbols-outlined text-[17px] font-bold group-hover:translate-x-1 transition-transform">
+                        arrow_forward
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Subtle Divider */}
+          <div className="h-5 w-px bg-white/15 hidden sm:block shrink-0" />
+
+          {/* Horizontal Nav Links ONLY (Inside overflow-x-auto) */}
+          <div className="flex-1 min-w-0 flex items-center overflow-x-auto scrollbar-none py-0.5 gap-1.5 whitespace-nowrap font-heading text-[13px] font-semibold">
+            <button
+              onClick={() => onScrollToSection("all-products")}
+              className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
+            >
+              Just Arrived
+            </button>
+
+            <button
+              onClick={() => onScrollToSection("flash-deals")}
+              className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
+            >
+              Bulk Mega Deals
+            </button>
+
+            <button
+              onClick={() => onScrollToSection("daily-necessities")}
+              className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
+            >
+              Best Sellers
+            </button>
+
+            <button
+              onClick={() => onScrollToSection("flash-deals")}
+              className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
+            >
+              Daily Deals
+            </button>
+
+            {/* Festive Specials Pill Badge */}
+            <button
+              onClick={() => onScrollToSection("navratri-specials")}
+              className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-rose-500/15 to-amber-500/10 text-amber-300 border border-amber-400/35 hover:border-amber-400/60 hover:bg-amber-500/25 transition-all duration-200 cursor-pointer flex items-center gap-1.5 font-heading font-bold text-[12.5px] tracking-tight shadow-2xs shrink-0"
+            >
+              <span className="material-symbols-outlined text-[15px] text-amber-400">
+                celebration
+              </span>
+              <span>Festive Specials</span>
+            </button>
+
+            <button
+              onClick={() => onScrollToSection("daily-necessities")}
+              className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
+            >
+              Daily Necessities
+            </button>
+
+            <button
+              onClick={() => onScrollToSection("electronics-gadgets")}
+              className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
+            >
+              Electronic Gadgets
+            </button>
+
+            <button
+              onClick={() => onScrollToSection("daily-necessities")}
+              className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer hidden md:inline-flex items-center"
+            >
+              Kitchen &amp; Dining
+            </button>
+
+            <button
+              onClick={() => onScrollToSection("daily-necessities")}
+              className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer hidden lg:inline-flex items-center"
+            >
+              Home Improvement
+            </button>
+          </div>
+
+          {/* Quick Wholesale Helpline Pill */}
+          <div className="hidden xl:flex items-center gap-2 font-heading font-semibold text-[12.5px] text-emerald-300 bg-emerald-950/45 border border-emerald-500/25 px-3.5 py-1.5 rounded-full shadow-2xs shrink-0">
+            <span className="material-symbols-outlined text-[17px] text-emerald-400">
+              local_shipping
+            </span>
+            <span>Same-Day Bulk Dispatch</span>
+          </div>
+        </div>
+      </div>
+    </header>
   );
 }
