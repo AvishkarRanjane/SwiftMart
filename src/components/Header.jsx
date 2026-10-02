@@ -416,7 +416,7 @@ export default function Header({
           </div>
 
           {/* Right Utility Links (Matching Reference Image with Proper Weight, Bold Font & Crisp Proportions) */}
-          <div className="flex items-center gap-2 sm:gap-3.5 md:gap-5 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3.5 md:gap-5 shrink-0">
             {/* Mobile Search Icon Button (Requirement 8 - Displays icon only on mobile, expands into full-screen search) */}
             <button
               id="mobile-search-btn"
@@ -428,7 +428,7 @@ export default function Header({
                   mobileSearchInputRef.current?.focus();
                 }, 100);
               }}
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 border border-neutral-200/80 shadow-xs transition-colors cursor-pointer shrink-0"
+              className="md:hidden flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-900 border border-neutral-200/80 shadow-xs transition-colors cursor-pointer shrink-0"
               title="Search wholesale catalog"
               aria-label="Open mobile search"
             >
@@ -436,10 +436,10 @@ export default function Header({
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2.3"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="w-5 h-5 text-neutral-900"
+                className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] text-neutral-900"
               >
                 <circle cx="11" cy="11" r="7" />
                 <path d="m21 21-4.35-4.35" />
@@ -450,20 +450,20 @@ export default function Header({
             <div className="relative" ref={accountDropdownRef}>
               <button
                 onClick={() => setIsAccountDropdownOpen((prev) => !prev)}
-                className="flex items-center gap-2 sm:gap-2.5 text-left hover:text-primary transition-colors cursor-pointer group p-0.5"
+                className="flex items-center gap-1.5 sm:gap-2.5 text-left hover:text-primary transition-colors cursor-pointer group p-0.5"
                 title="Your Wholesale Account & GSTIN Profile"
                 aria-expanded={isAccountDropdownOpen}
               >
-                <div className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-full bg-neutral-100 group-hover:bg-primary/10 border border-neutral-200/80 flex items-center justify-center text-neutral-800 group-hover:text-primary transition-all duration-200 shadow-xs group-hover:shadow-sm shrink-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-100 group-hover:bg-primary/10 border border-neutral-200/80 flex items-center justify-center text-neutral-800 group-hover:text-primary transition-all duration-200 shadow-xs group-hover:shadow-sm shrink-0">
                   {/* Crisp Bold Person SVG Icon */}
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2.1"
+                    strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="w-[15px] h-[15px] sm:w-[16.5px] sm:h-[16.5px] text-neutral-800 group-hover:text-primary group-hover:scale-105 transition-all duration-200"
+                    className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] text-neutral-800 group-hover:text-primary group-hover:scale-105 transition-all duration-200"
                   >
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
@@ -491,32 +491,32 @@ export default function Header({
 
               {/* Account Dropdown Menu (Unified Customer + Vendor Workflow) */}
               {isAccountDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-84 bg-white rounded-2xl shadow-2xl border border-neutral-200/90 py-3 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute -right-16 sm:right-0 top-full mt-3 w-[300px] sm:w-[340px] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-neutral-200/90 py-3 z-50 animate-in fade-in zoom-in-95 duration-200">
                   {/* Business Card Header & Role Identity */}
-                  <div className="px-4 pb-3 border-b border-neutral-100">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 text-white font-black text-sm flex items-center justify-center shadow-xs shrink-0">
+                  <div className="px-5 pb-4 border-b border-neutral-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-600 to-rose-700 text-white font-black text-lg flex items-center justify-center shadow-sm shrink-0">
                         {user?.name?.slice(0, 2).toUpperCase() || "AS"}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <span className="font-heading font-black text-sm text-neutral-900 block truncate">
+                        <span className="font-heading font-black text-base text-neutral-900 block truncate">
                           {user?.name || "Avishkar Sharma"}
                         </span>
-                        <div className="flex items-center gap-1.5 mt-0.5">
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
                           {user?.isVendor ? (
-                            <span className="bg-amber-100 text-amber-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/80 flex items-center gap-1">
+                            <span className="bg-amber-100 text-amber-900 text-[10px] sm:text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-amber-300/80 flex items-center gap-1.5 shadow-xs">
                               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
                               Customer + Vendor
                             </span>
                           ) : (
-                            <span className="bg-blue-50 text-blue-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-blue-200">
+                            <span className="bg-blue-50 text-blue-700 text-[10px] sm:text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border border-blue-200 shadow-xs">
                               Customer Account
                             </span>
                           )}
-                          <span className="text-[10px] text-neutral-400 font-mono truncate">
-                            {user?.isVendor ? user.vendorDetails?.city : "B2B Buyer"}
-                          </span>
                         </div>
+                        <span className="text-xs text-neutral-500 font-medium mt-1 block truncate">
+                          {user?.isVendor ? user.vendorDetails?.city : "B2B Buyer"}
+                        </span>
                       </div>
                     </div>
 
@@ -531,39 +531,39 @@ export default function Header({
                             : "Vendor permissions activated! Dual Customer + Vendor mode unlocked! 🏪"
                         );
                       }}
-                      className="mt-2.5 w-full flex items-center justify-between text-[11px] font-bold py-1.5 px-2.5 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition-colors border border-neutral-200/80 cursor-pointer"
+                      className="mt-4 w-full flex items-center justify-between text-xs font-bold py-2.5 px-3 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition-colors border border-neutral-200/80 cursor-pointer shadow-xs"
                       title="Click to toggle between Customer-only and Dual Customer+Vendor mode"
                     >
-                      <span className="text-neutral-500">Simulate Account State:</span>
-                      <span className="flex items-center gap-1 font-mono text-primary text-[10.5px]">
+                      <span className="text-neutral-500">Simulate State:</span>
+                      <span className="flex items-center gap-1 font-mono text-primary text-[11px]">
                         {user?.isVendor ? "Customer + Vendor ⚡" : "Customer (Default) 🛒"}
-                        <span className="material-symbols-outlined text-[13px]">swap_horiz</span>
+                        <span className="material-symbols-outlined text-[14px]">swap_horiz</span>
                       </span>
                     </button>
                   </div>
 
                   {/* Navigation Links */}
-                  <div className="py-1.5 px-2">
+                  <div className="py-2 px-3 flex flex-col gap-1">
                     {/* SECTION 1: Customer Dashboard (Customer features are NEVER lost) */}
                     <button
                       onClick={() => {
                         setIsAccountDropdownOpen(false);
                         if (onNavigateCustomer) onNavigateCustomer();
                       }}
-                      className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-neutral-50 flex items-center gap-3 transition-colors cursor-pointer group"
+                      className="w-full text-left p-3 rounded-xl hover:bg-neutral-50 flex items-center gap-3.5 transition-colors cursor-pointer group"
                     >
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-primary flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                        <span className="material-symbols-outlined text-[19px]">dashboard</span>
+                      <div className="w-9 h-9 rounded-full bg-blue-50 text-primary flex items-center justify-center group-hover:scale-110 transition-transform shrink-0 border border-blue-100/50">
+                        <span className="material-symbols-outlined text-[20px]">dashboard</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="font-heading font-bold text-xs sm:text-[13px] text-neutral-900 group-hover:text-primary transition-colors block leading-tight">
+                        <span className="font-heading font-bold text-[13px] sm:text-sm text-neutral-900 group-hover:text-primary transition-colors block leading-tight">
                           Customer Dashboard
                         </span>
-                        <span className="text-[11px] text-neutral-400 block truncate">
-                          Purchase History, Track Orders &amp; Wallet
+                        <span className="text-xs text-neutral-500 block truncate mt-0.5">
+                          Purchase History &amp; Wallet
                         </span>
                       </div>
-                      <span className="material-symbols-outlined text-[16px] text-neutral-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0">
+                      <span className="material-symbols-outlined text-[18px] text-neutral-400 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0">
                         chevron_right
                       </span>
                     </button>
@@ -576,25 +576,25 @@ export default function Header({
                           setIsAccountDropdownOpen(false);
                           if (onOpenBecomeVendor) onOpenBecomeVendor();
                         }}
-                        className="w-full text-left px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent hover:from-amber-500/25 border border-amber-300/60 my-1 flex items-center gap-3 transition-all cursor-pointer group shadow-xs"
+                        className="w-full text-left p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent hover:from-amber-500/20 border border-amber-200/60 flex items-center gap-3.5 transition-all cursor-pointer group shadow-sm"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs shrink-0">
-                          <span className="material-symbols-outlined text-[19px]">handshake</span>
+                        <div className="w-9 h-9 rounded-full bg-amber-500 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs shrink-0">
+                          <span className="material-symbols-outlined text-[20px]">handshake</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-heading font-black text-xs sm:text-[13px] text-amber-950 block leading-tight">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="font-heading font-bold text-[13px] sm:text-sm text-amber-950 block leading-tight">
                               Become a Vendor
                             </span>
-                            <span className="bg-red-600 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded">
+                            <span className="bg-red-600 text-white text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
                               0% Fee
                             </span>
                           </div>
-                          <span className="text-[11px] text-amber-800/80 block truncate">
-                            Sell Wholesale Direct to 45,000+ Buyers
+                          <span className="text-xs text-amber-800/90 block truncate">
+                            Sell Direct to 45K+ Buyers
                           </span>
                         </div>
-                        <span className="material-symbols-outlined text-[16px] text-amber-700 group-hover:translate-x-0.5 transition-all shrink-0">
+                        <span className="material-symbols-outlined text-[18px] text-amber-600 group-hover:translate-x-1 transition-all shrink-0">
                           arrow_forward
                         </span>
                       </button>
@@ -605,25 +605,25 @@ export default function Header({
                           setIsAccountDropdownOpen(false);
                           if (onNavigateVendor) onNavigateVendor();
                         }}
-                        className="w-full text-left px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-transparent hover:from-amber-500/25 border border-amber-400/80 my-1 flex items-center gap-3 transition-all cursor-pointer group shadow-xs"
+                        className="w-full text-left p-3 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent hover:from-amber-500/25 border border-amber-300/80 flex items-center gap-3.5 transition-all cursor-pointer group shadow-sm"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs shrink-0">
-                          <span className="material-symbols-outlined text-[19px]">store</span>
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs shrink-0">
+                          <span className="material-symbols-outlined text-[20px]">store</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-heading font-black text-xs sm:text-[13px] text-amber-950 block leading-tight">
-                              Switch to Vendor Dashboard
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="font-heading font-bold text-[13px] sm:text-sm text-amber-950 block leading-tight">
+                              Vendor Dashboard
                             </span>
-                            <span className="bg-emerald-600 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded">
+                            <span className="bg-emerald-600 text-white text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
                               Active
                             </span>
                           </div>
-                          <span className="text-[11px] text-amber-800/80 block truncate">
-                            Factory Lots, Stock, Orders &amp; Payouts
+                          <span className="text-xs text-amber-800/90 block truncate">
+                            Factory Lots &amp; Orders
                           </span>
                         </div>
-                        <span className="material-symbols-outlined text-[16px] text-amber-700 group-hover:translate-x-0.5 transition-all shrink-0">
+                        <span className="material-symbols-outlined text-[18px] text-amber-600 group-hover:translate-x-1 transition-all shrink-0">
                           arrow_forward
                         </span>
                       </button>
@@ -635,25 +635,25 @@ export default function Header({
                         setIsAccountDropdownOpen(false);
                         if (onNavigateAdmin) onNavigateAdmin();
                       }}
-                      className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-red-50/80 flex items-center gap-3 transition-colors cursor-pointer group"
+                      className="w-full text-left p-3 rounded-xl hover:bg-red-50/80 flex items-center gap-3.5 transition-colors cursor-pointer group"
                     >
-                      <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0 border border-red-200">
-                        <span className="material-symbols-outlined text-[19px]">admin_panel_settings</span>
+                      <div className="w-9 h-9 rounded-full bg-red-50 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0 border border-red-100">
+                        <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-heading font-black text-xs sm:text-[13px] text-neutral-900 group-hover:text-red-700 transition-colors block leading-tight">
-                            Admin Control Center
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="font-heading font-bold text-[13px] sm:text-sm text-neutral-900 group-hover:text-red-700 transition-colors block leading-tight">
+                            Admin Control
                           </span>
-                          <span className="bg-neutral-900 text-white text-[9px] font-black uppercase px-1.5 py-0.2 rounded">
+                          <span className="bg-neutral-900 text-white text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full shadow-xs">
                             Master
                           </span>
                         </div>
-                        <span className="text-[11px] text-neutral-400 block truncate">
-                          Platform Analytics, Orders &amp; Approvals
+                        <span className="text-xs text-neutral-500 block truncate">
+                          Analytics &amp; Approvals
                         </span>
                       </div>
-                      <span className="material-symbols-outlined text-[16px] text-neutral-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all shrink-0">
+                      <span className="material-symbols-outlined text-[18px] text-neutral-400 group-hover:text-red-600 group-hover:translate-x-1 transition-all shrink-0">
                         chevron_right
                       </span>
                     </button>
@@ -664,17 +664,17 @@ export default function Header({
                         setIsAccountDropdownOpen(false);
                         onOpenAccount();
                       }}
-                      className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-neutral-50 flex items-center gap-3 transition-colors cursor-pointer group"
+                      className="w-full text-left p-3 rounded-xl hover:bg-neutral-50 flex items-center gap-3.5 transition-colors cursor-pointer group"
                     >
-                      <div className="w-8 h-8 rounded-lg bg-neutral-100 text-neutral-700 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                        <span className="material-symbols-outlined text-[19px]">receipt_long</span>
+                      <div className="w-9 h-9 rounded-full bg-neutral-100 text-neutral-600 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0 border border-neutral-200/50">
+                        <span className="material-symbols-outlined text-[20px]">receipt_long</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="font-heading font-bold text-xs sm:text-[13px] text-neutral-900 group-hover:text-primary transition-colors block leading-tight">
+                        <span className="font-heading font-bold text-[13px] sm:text-sm text-neutral-900 group-hover:text-primary transition-colors block leading-tight mb-0.5">
                           GSTIN Business Profile
                         </span>
-                        <span className="text-[11px] text-neutral-400 block truncate">
-                          Manage Tax Invoicing &amp; Certificates
+                        <span className="text-xs text-neutral-500 block truncate">
+                          Manage Tax Invoicing
                         </span>
                       </div>
                     </button>
@@ -686,10 +686,10 @@ export default function Header({
             {/* 2. Wishlist */}
             <button
               onClick={onOpenWishlist}
-              className="flex items-center gap-2 sm:gap-2.5 text-left hover:text-rose-600 transition-colors cursor-pointer group p-0.5"
+              className="flex items-center gap-1.5 sm:gap-2.5 text-left hover:text-rose-600 transition-colors cursor-pointer group p-0.5"
               title="Saved Bulk Wishlist Items"
             >
-              <div className={`relative w-10 h-10 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center transition-all duration-200 shadow-xs group-hover:shadow-md shrink-0 ${
+              <div className={`relative w-9 h-9 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all duration-200 shadow-xs group-hover:shadow-md shrink-0 ${
                 wishlist.length > 0
                   ? "bg-rose-50 border-rose-300 text-rose-600 group-hover:bg-rose-100"
                   : "bg-neutral-100 border-neutral-200/80 text-neutral-700 group-hover:bg-rose-50 group-hover:border-rose-200 group-hover:text-rose-600"
@@ -702,13 +702,13 @@ export default function Header({
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="w-[18px] h-[18px] sm:w-[17px] sm:h-[17px] transition-all duration-200"
+                  className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] transition-all duration-200"
                 >
                   <path d="M19.5 13.572 12 21l-7.5-7.428A5 5 0 1 1 12 6.5a5 5 0 1 1 7.5 7.072Z" />
                 </svg>
 
                 {wishlist.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-600 text-white font-heading font-black text-[9.5px] min-w-[18px] h-[18px] px-0.5 rounded-full flex items-center justify-center shadow-md border-[2px] border-white leading-none">
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white font-heading font-black text-[9.5px] min-w-[17px] h-[17px] sm:min-w-[18px] sm:h-[18px] px-0.5 rounded-full flex items-center justify-center shadow-md border-[2px] border-white leading-none">
                     {wishlist.length}
                   </span>
                 )}
@@ -726,10 +726,10 @@ export default function Header({
             {/* 3. Cart */}
             <button
               onClick={onOpenCart}
-              className="flex items-center gap-2 sm:gap-2.5 text-left hover:text-primary transition-colors cursor-pointer group p-0.5"
+              className="flex items-center gap-1.5 sm:gap-2.5 text-left hover:text-primary transition-colors cursor-pointer group p-0.5"
               title="View Wholesale Cart & Bulk Tiers"
             >
-              <div className={`relative w-10 h-10 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center transition-all duration-200 shadow-xs group-hover:shadow-md shrink-0 ${
+              <div className={`relative w-9 h-9 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all duration-200 shadow-xs group-hover:shadow-md shrink-0 ${
                 itemCount > 0
                   ? "bg-primary/10 border-primary/30 text-primary group-hover:bg-primary/15"
                   : "bg-neutral-100 border-neutral-200/80 text-neutral-700 group-hover:bg-primary/10 group-hover:border-primary/20 group-hover:text-primary"
@@ -742,7 +742,7 @@ export default function Header({
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="w-[18px] h-[18px] sm:w-[17px] sm:h-[17px] transition-all duration-200"
+                  className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] transition-all duration-200"
                 >
                   <circle cx="8" cy="21" r="1.5" fill="currentColor" stroke="none" />
                   <circle cx="19" cy="21" r="1.5" fill="currentColor" stroke="none" />
@@ -750,7 +750,7 @@ export default function Header({
                 </svg>
 
                 {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-600 text-white font-heading font-black text-[9.5px] min-w-[18px] h-[18px] px-0.5 rounded-full flex items-center justify-center shadow-md border-[2px] border-white leading-none">
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white font-heading font-black text-[9.5px] min-w-[17px] h-[17px] sm:min-w-[18px] sm:h-[18px] px-0.5 rounded-full flex items-center justify-center shadow-md border-[2px] border-white leading-none">
                     {itemCount}
                   </span>
                 )}
