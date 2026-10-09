@@ -241,9 +241,11 @@ export function CartProvider({ children }) {
     });
   };
 
-  const removeFromWishlist = (productId) => {
+  const removeFromWishlist = (productId, silent = false) => {
     setWishlist((prev) => prev.filter((id) => id !== productId));
-    showToast("Removed from Wishlist");
+    if (!silent) {
+      showToast("Removed from Wishlist");
+    }
   };
 
   const clearWishlist = () => {
@@ -253,7 +255,7 @@ export function CartProvider({ children }) {
 
   const moveWishlistToCart = (product) => {
     addToCart(product, 1);
-    removeFromWishlist(product.id);
+    removeFromWishlist(product.id, true);
     showToast(`Moved ${product.shortName || product.name} to Basket 🛒`);
   };
 

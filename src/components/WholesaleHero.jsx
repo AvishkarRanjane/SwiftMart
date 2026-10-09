@@ -70,7 +70,7 @@ export default function WholesaleHero({ onScrollToSection }) {
             <span className="text-amber-400 font-extrabold text-[10px] sm:text-sm tracking-widest uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] shrink-0 mb-1 sm:mb-0">
               {activeSlide.tag}
             </span>
-            <h2 className="text-[22px] leading-[1.15] sm:leading-[1.08] sm:text-4xl lg:text-5xl font-black text-white tracking-tight mt-1 mb-2 drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)] line-clamp-2">
+            <h2 className="text-[22px] leading-[1.15] sm:leading-[1.08] sm:text-4xl lg:text-5xl font-black text-white tracking-tight mt-1 mb-2 drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)] line-clamp-2 min-h-[2.3em] sm:min-h-[2.16em]">
               {activeSlide.title}
             </h2>
             <p className="text-[11.5px] sm:text-sm lg:text-[15px] text-neutral-200 sm:text-neutral-100 font-medium mb-3 sm:mb-3.5 max-w-xl line-clamp-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">

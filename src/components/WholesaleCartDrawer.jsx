@@ -307,7 +307,7 @@ export default function WholesaleCartDrawer({ isOpen, onClose, onCheckoutSuccess
                   <button
                     onClick={() => !isCheckingOut && removeFromCart(item.id)}
                     disabled={isCheckingOut}
-                    className="text-[10.5px] text-neutral-400 hover:text-red-600 flex items-center gap-0.5 cursor-pointer transition-colors disabled:opacity-50"
+                    className="text-[10.5px] text-neutral-400 hover:text-red-600 flex items-center justify-center gap-0.5 cursor-pointer transition-colors disabled:opacity-50 px-2 py-1 border border-current rounded-md"
                   >
                     <span className="material-symbols-outlined text-[13px]">
                       delete

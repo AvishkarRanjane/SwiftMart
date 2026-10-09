@@ -199,7 +199,8 @@ export default function WholesaleWishlistDrawer({ isOpen, onClose, onQuickView, 
                   <button
                     onClick={() => {
                       addToCart(product, 1);
-                      removeFromWishlist(product.id);
+                      removeFromWishlist(product.id, true);
+                      showToast("Added to Wholesale Cart");
                     }}
                     className="bg-gradient-to-r from-[#701620] to-[#591119] hover:from-[#5e121b] hover:to-[#490d14] text-white text-[11px] font-heading font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 active:scale-95 transition-all shadow-2xs hover:shadow-xs cursor-pointer"
                   >
@@ -211,7 +212,7 @@ export default function WholesaleWishlistDrawer({ isOpen, onClose, onQuickView, 
 
                   <button
                     onClick={() => removeFromWishlist(product.id)}
-                    className="text-[10.5px] text-neutral-400 hover:text-red-600 transition-colors cursor-pointer px-1 py-0.5"
+                    className="text-[10.5px] text-neutral-400 hover:text-red-600 transition-colors cursor-pointer px-2 py-1 border border-current rounded-md flex items-center justify-center"
                   >
                     Remove
                   </button>

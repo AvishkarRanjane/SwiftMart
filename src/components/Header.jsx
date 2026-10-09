@@ -902,8 +902,7 @@ export default function Header({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsMegaMenuOpen(false);
-                if (onScrollToSection) onScrollToSection("just-arrived");
-                else if (onSelectCategory) onSelectCategory("just-arrived");
+                if (onSelectCategory) onSelectCategory("just-arrived");
               }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
@@ -915,8 +914,7 @@ export default function Header({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsMegaMenuOpen(false);
-                if (onScrollToSection) onScrollToSection("flash-deals");
-                else if (onSelectCategory) onSelectCategory("flash-deals");
+                if (onSelectCategory) onSelectCategory("flash-deals");
               }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
@@ -928,8 +926,7 @@ export default function Header({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsMegaMenuOpen(false);
-                if (onScrollToSection) onScrollToSection("best-sellers");
-                else if (onSelectCategory) onSelectCategory("best-sellers");
+                if (onSelectCategory) onSelectCategory("best-sellers");
               }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
@@ -941,8 +938,7 @@ export default function Header({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsMegaMenuOpen(false);
-                if (onScrollToSection) onScrollToSection("flash-deals");
-                else if (onSelectCategory) onSelectCategory("flash-deals");
+                if (onSelectCategory) onSelectCategory("flash-deals");
               }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
@@ -955,8 +951,7 @@ export default function Header({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsMegaMenuOpen(false);
-                if (onScrollToSection) onScrollToSection("festive-specials");
-                else if (onSelectCategory) onSelectCategory("festive-gifting");
+                if (onSelectCategory) onSelectCategory("festive-specials");
               }}
               className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-rose-500/15 to-amber-500/10 text-amber-300 border border-amber-400/35 hover:border-amber-400/60 hover:bg-amber-500/25 transition-all duration-200 cursor-pointer flex items-center gap-1.5 font-heading font-bold text-[12.5px] tracking-tight shadow-2xs shrink-0"
             >
@@ -971,8 +966,7 @@ export default function Header({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsMegaMenuOpen(false);
-                if (onScrollToSection) onScrollToSection("daily-necessities");
-                else if (onSelectCategory) onSelectCategory("daily-necessities");
+                if (onSelectCategory) onSelectCategory("daily-necessities");
               }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
@@ -984,8 +978,7 @@ export default function Header({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsMegaMenuOpen(false);
-                if (onScrollToSection) onScrollToSection("electronics-gadgets");
-                else if (onSelectCategory) onSelectCategory("electronics-gadgets");
+                if (onSelectCategory) onSelectCategory("electronics-gadgets");
               }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer"
             >
@@ -997,8 +990,7 @@ export default function Header({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsMegaMenuOpen(false);
-                if (onScrollToSection) onScrollToSection("kitchen-dining");
-                else if (onSelectCategory) onSelectCategory("kitchen-dining");
+                if (onSelectCategory) onSelectCategory("kitchen-dining");
               }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer hidden md:inline-flex items-center"
             >
@@ -1010,8 +1002,7 @@ export default function Header({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsMegaMenuOpen(false);
-                if (onScrollToSection) onScrollToSection("home-improvement");
-                else if (onSelectCategory) onSelectCategory("home-improvement");
+                if (onSelectCategory) onSelectCategory("home-improvement");
               }}
               className="px-3 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/10 transition-all duration-150 cursor-pointer hidden lg:inline-flex items-center"
             >

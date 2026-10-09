@@ -47,21 +47,18 @@ function SwiftMartWholesaleApp() {
 
     let targetId = sectionId;
     if (sectionId === "just-arrived") {
-      targetId = "all-products";
       setActiveHomePill("all");
     } else if (sectionId === "best-sellers") {
-      targetId = "all-products";
       setActiveHomePill("all");
     } else if (
       sectionId === "festive-specials" ||
       sectionId === "navratri-specials" ||
       sectionId === "festive"
     ) {
-      targetId = "all-products";
       setActiveHomePill("festive");
     }
-    // daily-necessities, electronics-gadgets, kitchen-dining, home-improvement:
-    // targetId already equals sectionId — scrolls directly to their standalone section.
+    // daily-necessities, electronics-gadgets, kitchen-dining, home-improvement
+    // will now be handled via direct content load.
 
     if (currentPage !== "home") {
       setCurrentPage("home");
@@ -135,10 +132,6 @@ function SwiftMartWholesaleApp() {
       "navratri-specials",
       "flash-deals",
       "wholesale-faq",
-      "daily-necessities",
-      "electronics-gadgets",
-      "kitchen-dining",
-      "home-improvement",
     ];
     if (homeSections.includes(catId)) {
       scrollToSection(catId);
